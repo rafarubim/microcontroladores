@@ -87,6 +87,31 @@ void Lcd::print(String str) {
   cursorPos.x += _leftToRight ? len : -len;
 }
 
+void Lcd::pushCursorPos() {
+  _cursorPosBackup = cursorPos;
+}
+
+void Lcd::popCursorPos() {
+  cursorPos = _cursorPosBackup;
+}
+
+void Lcd::stamp(char c, int x, int y) {
+  if (x >= 0 && x < _cols && y >=0 && y < _rows) {
+    pushCursorPos();
+    setCursor(x, y);
+    write(c);
+    popCursorPos();
+  }
+}
+
+void Lcd::stamp(char c, int x) {
+  stamp(c, x, cursorPos.y);
+}
+
+void Lcd::stamp(char c) {
+  stamp(c, cursorPos.x);
+}
+
 void Lcd::moveCursor(int x, int y) {
   int newX = cursorPos.x + x;
   int newY = cursorPos.y + y;
@@ -95,11 +120,11 @@ void Lcd::moveCursor(int x, int y) {
   }
 }
 
-void Lcd::ClearCol(int col) {
-  Pos prevPos = cursorPos;
+void Lcd::clearCol(int col) {
+  pushCursorPos();
   for (int i = 0; i < _rows; i++) {
     setCursor(col, i);
     write(' ');
   }
-  cursorPos = prevPos;
+  popCursorPos();
 }

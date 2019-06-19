@@ -10,6 +10,7 @@ static byte STICK_MAN(2);
 struct Pos {
   int x, y;
   Pos(int x, int y) : x(x), y(y) {}
+  Pos() : Pos(0, 0) {}
 };
 
 class Lcd: public LiquidCrystal {
@@ -17,9 +18,9 @@ class Lcd: public LiquidCrystal {
   int _cols, _rows;
   bool _leftToRight = true;
   bool _autoscroll = false;
+  Pos _cursorPosBackup;
 public:
   Pos cursorPos = {0, 0};
-  
   Lcd(int cols, int rows);
   void home();
   void setCursor(int col, int row);
@@ -29,6 +30,11 @@ public:
   void scrollDisplayRight();
   void write(char c);
   void print(String str);
+  void pushCursorPos();
+  void popCursorPos();
+  void stamp(char c, int x, int y);
+  void stamp(char c, int x);
+  void stamp(char c);
   void moveCursor(int x, int y = 0);
-  void ClearCol(int col);
+  void clearCol(int col);
 };
