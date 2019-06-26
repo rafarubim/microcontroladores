@@ -1,47 +1,36 @@
 #include "Lcd.hpp"
+
+#define null 0
 #define uint8_t byte
 
-static byte star[8] = {
-  0b00000,
-  0b00100,
-  0b00100,
-  0b11111,
-  0b01110,
-  0b01010,
-  0b10001,
-  0b00000
-};
+Lcd* Lcd::_lcdInstance = null;
+int Lcd::_defaultCols = 0;
+int Lcd::_defaultRows = 0;
 
-
-static byte pingu[8] = {
-  0b00000,
-  0b00000,
-  0b01100,
-  0b01110,
-  0b01100,
-  0b01100,
-  0b01100,
-  0b01010
-};
-
-
-static byte stickMan[8] = {
-  0b00000,
-  0b00100,
-  0b00000,
-  0b01110,
-  0b10101,
-  0b00100,
-  0b01010,
-  0b01010
-};
-
-Lcd::Lcd(int cols, int rows) : LiquidCrystal(_Rs, _En, _D4, _D5, _D6, _D7), _cols(cols), _rows(rows)  {
+Lcd::Lcd(int cols, int rows): LiquidCrystal(_Rs, _Rw, _En, _D4, _D5, _D6, _D7), _cols(cols), _rows(rows) {
+  digitalWrite(_Rw, LOW);
   begin(cols, rows);
-  createChar(STAR, star);
-  createChar(PINGU, pingu);
-  createChar(STICK_MAN, stickMan);
-  Pos currentPos(0, 0);
+}
+
+void Lcd::configLcd(int cols, int rows) {
+  _defaultCols = cols;
+  _defaultRows = rows;
+}
+
+Lcd* Lcd::getInstance() {
+  if (_lcdInstance != null) {
+    return _lcdInstance;
+  }
+  _lcdInstance = new Lcd(_defaultCols, _defaultRows);
+  return _lcdInstance;
+}
+
+int Lcd::getCols() {
+  return _cols;
+}
+
+int Lcd::getRows() {
+  return _rows;
 }
 
 void Lcd::home() {
@@ -110,6 +99,24 @@ void Lcd::stamp(char c, int x) {
 
 void Lcd::stamp(char c) {
   stamp(c, cursorPos.x);
+}
+
+
+void Lcd::stampTemp(byte temp[8], int x, int y) {
+  createChar(_currentTempChar, temp);
+  stamp(_currentTempChar, x, y);
+  _currentTempChar++;
+  if (_currentTempChar >= MAX_TEMPS) {
+    _currentTempChar = 0;
+  }
+}
+
+void Lcd::stampTemp(byte temp[8], int x) {
+  stampTemp(temp, x, cursorPos.y);
+}
+
+void Lcd::stampTemp(byte temp[8]) {
+  stampTemp(temp, cursorPos.x);
 }
 
 void Lcd::moveCursor(int x, int y) {

@@ -1,27 +1,30 @@
 #pragma once
 
 #include <LiquidCrystal.h>
+#include "Pos.h"
 #include <arduino.h>
 
-static byte STAR(0);
-static byte PINGU(1);
-static byte STICK_MAN(2);
+#define MAX_TEMPS 8
 
-struct Pos {
-  int x, y;
-  Pos(int x, int y) : x(x), y(y) {}
-  Pos() : Pos(0, 0) {}
-};
+static byte FLOATING_X =0b11101011;
 
 class Lcd: public LiquidCrystal {
-  const int _Rs = 12, _En = 11, _D4 = 5, _D5 = 4, _D6 = 3, _D7 = 2;
+  static const int _Rs = 12, _En = 11, _D4 = 5, _D5 = 4, _D6 = 3, _D7 = 2, _Rw = 8;
+  static int _defaultCols, _defaultRows;
+  static Lcd* _lcdInstance;
   int _cols, _rows;
+  byte _currentTempChar = 0;
   bool _leftToRight = true;
   bool _autoscroll = false;
   Pos _cursorPosBackup;
-public:
-  Pos cursorPos = {0, 0};
   Lcd(int cols, int rows);
+public:
+  static void configLcd(int cols, int rows);
+  static Lcd* getInstance();
+  Pos cursorPos = {0, 0};
+
+  int getCols();
+  int getRows();
   void home();
   void setCursor(int col, int row);
   void leftToRight();
@@ -35,6 +38,9 @@ public:
   void stamp(char c, int x, int y);
   void stamp(char c, int x);
   void stamp(char c);
+  void stampTemp(byte temp[8], int x, int y);
+  void stampTemp(byte temp[8], int x);
+  void stampTemp(byte temp[8]);
   void moveCursor(int x, int y = 0);
   void clearCol(int col);
 };

@@ -1,12 +1,9 @@
 #pragma once
-#include "Lcd.hpp"
 
-template <typename T, unsigned S>
-inline unsigned arraySize(const T(&v)[S]) {
-  return S;
-}
+#include "Lcd.hpp"
 
 class Animation {
 public:
-  static void opening(Lcd lcd);
+  static void opening();
+  static void shooting();
 };
