@@ -30,6 +30,7 @@ static double moment;
 static int pinguSize = 5;
 static int maxY = 34;
 static int minY = 0 + pinguSize;
+static int maxRow = 3;
 
 static byte PLATFORM[8] = {
   0b00000,
@@ -48,11 +49,11 @@ struct Platform {
   Platform(): Platform(0) {}
 };
 
-Platform platforms[PLATFORM_AMOUNT] = {Platform(24), Platform(40), Platform(58)};
+Platform platforms[PLATFORM_AMOUNT] = {Platform(5), Platform(7), Platform(9)};
 
-void drawPlatform(Graphics& graphics, Platform& platform) {
-  graphics.draw(PLATFORM, Pos(platform.x, maxY));
-  graphics.draw(PLATFORM, Pos(platform.x + 5, maxY));
+void drawPlatform(Graphics graphics, Platform& platform) {
+  graphics.stamp('_', Pos(platform.x, maxY));
+  graphics.stamp('_', Pos(platform.x + 5, maxY));
 }
 
 double velocityY = 0;
@@ -85,7 +86,7 @@ void setupGame ()
   pinMode(pinSignal, INPUT);
 }
    
-void gameLoop(Graphics& graphics)  
+void gameLoop(Lcd* lcd, Graphics& graphics)  
 {  
   // Performs 20 signal readings
   for ( int i = 0 ; i <num_Measure; i ++)  

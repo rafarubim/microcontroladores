@@ -20,8 +20,9 @@ void setup ()
 void loop ()  
 {
   Graphics graphics = Graphics::getInstance();
+  Lcd* lcd = Lcd::getInstance();
   
-  gameLoop(graphics);
+  gameLoop(lcd, graphics);
   
   graphics.processGraphics();
 }

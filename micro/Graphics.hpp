@@ -33,6 +33,7 @@ public:
   double getFps();
   void setFps(double fps);
   void draw(const byte (&drawing)[8], Pos pos);
+  void stamp(char c, Pos pos);
   
   void flushScreen();
   void processGraphics();

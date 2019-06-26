@@ -59,6 +59,13 @@ void Graphics::draw(const byte (&drawing)[8], Pos pos) {
   pushElem(_drawingsBuffer, _drawingsAmount, bufferedDrawing);
 }
 
+void Graphics::stamp(char c, Pos pos) {
+  Lcd* lcd = Lcd::getInstance();
+  int col = pos.x / 6;
+  int row = pos.y / 9;
+  lcd->stamp(c, col, row);
+}
+
 void Graphics::flushScreen() {
   Lcd* lcd = Lcd::getInstance();
   int lcdCols = lcd->getCols();
