@@ -2,6 +2,6 @@
 
 #include "Graphics.hpp"
 
-void setupGame();
+void setupGameStar();
    
-void gameLoop(Lcd* lcd, Graphics& graphics);
+void gameLoopStar(Lcd* lcd, Graphics& graphics);

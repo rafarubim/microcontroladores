@@ -3,63 +3,71 @@
 #include "Graphics.hpp"
 #include <arduino.h>
 #include "Pos.h"
-#include <GFButton.h>
 
 #define WALL_AMOUNT 3
 
-static byte PINGU[8] = {
+static byte STAR[8] = {
   0b00000,
-  0b00000,
-  0b01100,
+  0b00100,
+  0b00100,
+  0b11111,
   0b01110,
-  0b01100,
-  0b01100,
-  0b01100,
-  0b01010
+  0b01010,
+  0b10001,
+  0b00000
 };
 
-GFButton botao(A1);
+static byte WALL = 0xff;
 
 static long level = 0 ; // Store the average value
-static int isJumping = 0; // True (1) if character is jumping
 static unsigned long score;
 
-static int pinguSize = 5;
+static int STARSize = 5;
 static int maxY = 34;
-static int minY = 0 + pinguSize;
+static int minY = 0 + STARSize;
 static int maxRow = 3;
-static int gapSize = 9; 
-static byte WALL = 0xff;
-static bool playing = false;
+static bool playing = true;
 
 struct Wall {
-  double x;
+  int x;
   int gap;
   Wall(int x, int gap): x(x), gap(gap) {}
 };
 
-Wall walls[WALL_AMOUNT] = {Wall(5, random(1, 36)), Wall(7, random(1, 36)) , Wall(9, random(1, 36))};
+Wall walls[WALL_AMOUNT] = {Wall(7,random(1,5)), Wall(10, random(1,5)), Wall(14, random(1,5))};
 
-void drawWall(Graphics graphics, Wall& wall) {
-  for( int y = 1; y < 5; y++ )
-    if ( y != gap )
-      graphics.stamp(WALL, Pos(wall.x, 9*y));
+void drawWall(Lcd* lcd, Wall& wall) {
+  for( int y = 0; y < 5; y++ ){
+    if ( y != wall.gap ){
+      lcd->stamp(WALL, floor(wall.x), y);
+    }
+  }
 }
 
-double velocityY = 1;
-double g = -1;
-double positionY = 32;     // Initial position of the character
-
+double velocityY = 0;
+double gravity = 1;
+double positionY = 4;     // Initial position of the character
+double positionX = 10;
+static unsigned long time_flag = 0;
+static double moment;
 static void play() {
   if ( !playing )
     playing = true;
   
-  velocityY = -3;
+  velocityY = -16;
 }
 
-static void Update()
+static void Update(float moment)
 {
-  positionY += velocityY * g;
+  if ((int)positionX >= 20){
+    walls[0] = Wall(7,random(1,5));
+    walls[1] = Wall(10,random(1,5));
+    walls[2] = Wall(14,random(1,5));
+    positionX = 1;
+  }
+  positionX += 15 * moment;
+  velocityY += gravity * moment;
+  positionY += velocityY * moment;
   if ( positionY > maxY - 2 ) { // Check maximum positionY
     positionY = maxY - 2;
   } else if ( positionY < minY ) {
@@ -71,29 +79,33 @@ static void Update()
 
 static bool checkCollision(Wall walls[]) {
   for(int i = 0; i < WALL_AMOUNT; i++)
-    if ( positionX == walls[i].x && positionY != gap ) 
-      return true;
+    if ( (int)positionX == (int)walls[i].x ) return true;
   return false;
 }
 
-void setupGame ()
+void setupGameStar ()
 {
-  randomSeed(analogRead(A0));
-  botao.setPressHandler(play);
+  Serial.begin(9600);
+  //randomSeed(analogRead(A0));
+  //botao.setPressHandler(play);
 }
    
-void gameLoop(Lcd* lcd, Graphics& graphics)  
+void gameLoopStar(Lcd* lcd, Graphics& graphics)
 { 
-  botao.process(); 
   if ( playing ) {
-    Update();
+    char input = Serial.read();
+    if (input == 'j') {
+      play();
+    }
+    graphics.draw(STAR, Pos(floor(positionX), floor(positionY)));
+    moment = (millis() - time_flag)/1000.;
+    Update(moment);
+    time_flag = millis();
     if ( checkCollision(walls) ) {
       playing = false;
     }
+    for (int i = 0; i < WALL_AMOUNT; i++) {
+      drawWall(lcd, walls[i]);
+    }
   }
-  graphics.draw(PINGU, Pos(18, floor(positionY)));
-  for (int i = 0; i < WALL_AMOUNT; i++) {
-    drawWall(graphics, walls[i]);
-  }
-  
 }
