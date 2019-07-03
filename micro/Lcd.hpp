@@ -20,7 +20,7 @@ class Lcd: public LiquidCrystal {
   Lcd(int cols, int rows);
 public:
   static void configLcd(int cols, int rows);
-  static Lcd* getInstance();
+  static Lcd& getInstance();
   Pos cursorPos = {0, 0};
 
   int getCols();

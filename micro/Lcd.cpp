@@ -17,12 +17,12 @@ void Lcd::configLcd(int cols, int rows) {
   _defaultRows = rows;
 }
 
-Lcd* Lcd::getInstance() {
+Lcd& Lcd::getInstance() {
   if (_lcdInstance != null) {
-    return _lcdInstance;
+    return *_lcdInstance;
   }
   _lcdInstance = new Lcd(_defaultCols, _defaultRows);
-  return _lcdInstance;
+  return *_lcdInstance;
 }
 
 int Lcd::getCols() {

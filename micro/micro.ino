@@ -12,7 +12,7 @@ void setup ()
   Serial.begin (9600);
   Lcd::configLcd(COLS, ROWS);
 
-  //Animation::opening();
+  Animation::opening();
 
   setupGame();
 }
@@ -20,7 +20,7 @@ void setup ()
 void loop ()  
 {
   Graphics graphics = Graphics::getInstance();
-  Lcd* lcd = Lcd::getInstance();
+  Lcd lcd = Lcd::getInstance();
   
   gameLoop(lcd, graphics);
   

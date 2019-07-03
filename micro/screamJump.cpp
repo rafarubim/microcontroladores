@@ -86,7 +86,7 @@ void setupGame ()
   pinMode(pinSignal, INPUT);
 }
    
-void gameLoop(Lcd* lcd, Graphics& graphics)  
+void gameLoop(Lcd lcd, Graphics& graphics)  
 {  
   // Performs 20 signal readings
   for ( int i = 0 ; i <num_Measure; i ++)  

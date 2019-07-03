@@ -14,7 +14,6 @@ void Graphics::clearCharBuffer() {
 }
 
 void Graphics::drawInCharBuffer(int currentRow, int currentCol, const byte (&drawing)[8], Pos pos) {
-  Lcd* lcd = Lcd::getInstance();
   for (int bitJ = 0; bitJ < 5; bitJ++) {
     for (int bitI = 0; bitI < 8; bitI++) {
       int xPos = pos.x + bitJ;
@@ -60,16 +59,16 @@ void Graphics::draw(const byte (&drawing)[8], Pos pos) {
 }
 
 void Graphics::stamp(char c, Pos pos) {
-  Lcd* lcd = Lcd::getInstance();
+  Lcd lcd = Lcd::getInstance();
   int col = pos.x / 6;
   int row = pos.y / 9;
-  lcd->stamp(c, col, row);
+  lcd.stamp(c, col, row);
 }
 
 void Graphics::flushScreen() {
-  Lcd* lcd = Lcd::getInstance();
-  int lcdCols = lcd->getCols();
-  int lcdRows = lcd->getRows();
+  Lcd lcd = Lcd::getInstance();
+  int lcdCols = lcd.getCols();
+  int lcdRows = lcd.getRows();
   for (int j = 0; j < lcdCols; j++) {
     for (int i = 0; i < lcdRows; i++) {
       clearCharBuffer();
@@ -87,9 +86,9 @@ void Graphics::flushScreen() {
         }
       }
       if (isBufferEmpty) {
-        lcd->stamp(' ', j, i);
+        lcd.stamp(' ', j, i);
       } else {
-        lcd->stampTemp(_charBuffer, j, i);
+        lcd.stampTemp(_charBuffer, j, i);
       }
     }
   }
