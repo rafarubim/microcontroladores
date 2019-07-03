@@ -101,6 +101,17 @@ void Lcd::stamp(char c) {
   stamp(c, cursorPos.x);
 }
 
+void Lcd::stamp(byte b, int x, int y) {
+  stamp(char(b), x, y);
+}
+
+void Lcd::stamp(byte b, int x) {
+  stamp(b, x);
+}
+
+void Lcd::stamp(byte b) {
+  stamp(b);
+}
 
 void Lcd::stampTemp(byte temp[8], int x, int y) {
   createChar(_currentTempChar, temp);

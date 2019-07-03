@@ -86,8 +86,9 @@ void setupGame ()
   pinMode(pinSignal, INPUT);
 }
    
-void gameLoop(Lcd lcd, Graphics& graphics)  
-{  
+void gameLoop()  
+{
+  Graphics graphics = Graphics::getInstance();
   // Performs 20 signal readings
   for ( int i = 0 ; i <num_Measure; i ++)  
   {  
@@ -113,4 +114,5 @@ void gameLoop(Lcd lcd, Graphics& graphics)
   for (int i = 0; i < PLATFORM_AMOUNT; i++) {
     drawPlatform(graphics, platforms[i]);
   }
+  graphics.processGraphics();
 }

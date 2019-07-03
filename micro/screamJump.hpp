@@ -4,4 +4,4 @@
 
 void setupGame();
    
-void gameLoop(Lcd lcd, Graphics& graphics);
+void gameLoop ();

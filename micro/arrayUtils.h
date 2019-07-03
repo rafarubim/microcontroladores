@@ -18,6 +18,22 @@ inline void arrayCopy(T(&dest)[N_DEST], const T(&source)[N_SOURCE], int n = N_SO
   }
 }
 
+template <typename T, unsigned N_DEST, unsigned N_SOURCE>
+inline void arrayConcat(T(&dest)[N_DEST], const T(&source)[N_SOURCE], int nDest = N_DEST, int nSource = N_SOURCE) {
+  if (nDest > N_DEST) {
+    nDest = N_DEST;
+  }
+  if (nSource > N_SOURCE) {
+    nSource = N_SOURCE;
+  }
+  if (nDest + nSource > N_DEST) {
+    nSource = N_DEST - nDest;
+  }
+  for (int i = 0; i < nSource; i++) {
+    dest[nDest + i] = source[i];
+  }
+}
+
 template <typename T, unsigned N>
 inline void pushElem(T(&list)[N], int &n, T elem) {
   if (unsigned(n) < N - 1) {

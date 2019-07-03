@@ -38,6 +38,9 @@ public:
   void stamp(char c, int x, int y);
   void stamp(char c, int x);
   void stamp(char c);
+  void stamp(byte b, int x, int y);
+  void stamp(byte b, int x);
+  void stamp(byte b);
   void stampTemp(byte temp[8], int x, int y);
   void stampTemp(byte temp[8], int x);
   void stampTemp(byte temp[8]);

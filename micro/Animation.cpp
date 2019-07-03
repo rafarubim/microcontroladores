@@ -7,7 +7,7 @@
 
 const byte stars[] = { '*', '.', '+', 'x'};
 
-int randomStar() {
+char randomStar() {
   int inx = floor(random(0, arraySize(stars)));
   return stars[inx];
 }
