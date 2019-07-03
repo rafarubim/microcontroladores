@@ -39,7 +39,7 @@ Wall walls[WALL_AMOUNT] = {Wall(7,random(1,5)), Wall(10, random(1,5)), Wall(14, 
 void drawWall(Lcd* lcd, Wall& wall) {
   for( int y = 0; y < 5; y++ ){
     if ( y != wall.gap ){
-      lcd->stamp(WALL, floor(wall.x), y);
+      lcd.stamp(WALL, floor(wall.x), y);
     }
   }
 }
