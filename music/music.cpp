@@ -1,32 +1,30 @@
 #include "music.h"
 
-unsigned long play(std::vector<Note> melody, unsigned long previousMillis, int& current) {
+unsigned long play(Note melody[], int N, unsigned long previousMillis, int& current, bool& outputTone, int tonePin) {
     unsigned long currentMillis = millis();
-
-    if (outputTone) {
-        if (currentMillis - previousMillis >= melody[current].noteDuration) {
-            previousMillis = currentMillis;
-            noTone(tonePin);
-            outputTone = false;
-            return previousMillis;
-        }
-    } else {
-        if (currentMillis - previousMillis >= melody[current].pauseBetweenNotes) {
-            previousMillis = currentMillis;
-            tone(tonePin, melody[current].note);
-            outputTone = true;
-
-            if (current == melody.size() - 1)
-                current = 0;
-            else
+    if (current == -1) {
+      outputTone = true;
+      current++;
+      tone(tonePin, melody[current].note, melody[current].noteDuration);
+      return currentMillis;
+    } else if (current <= N  ){
+        if (outputTone) {
+            if (currentMillis - previousMillis >= melody[current].noteDuration) {
+                noTone(tonePin);
+                outputTone = false;
+                return currentMillis;
+            }
+        } else {
+            if (currentMillis - previousMillis >= melody[current].pauseBetweenNotes) {
+                outputTone = true;
                 current++;
-
-            return previousMillis;
+                tone(tonePin, melody[current].note, melody[current].noteDuration);
+                return currentMillis;
+            } 
         }
     }
+    else {
+      current = -1;
+      return currentMillis;
+    }
 }
-// Use:
-// std::vector<Note> melody;
-// previousMillis = 0;
-// loop:
-// previousMillis = play(array_de_struct_tipo_note, previousMillis, current);
