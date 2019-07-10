@@ -1,12 +1,13 @@
 #include "MainMenu.hpp"
 #include "Lcd.hpp"
+#include "StateMachine.hpp"
 #include <GFButton.h>
 
 OptionsMenu MainMenu::_optionsMenu = OptionsMenu();
 
 static GFButton upBtn(A0, E_GFBUTTON_PULLUP);
 static GFButton downBtn(A2, E_GFBUTTON_PULLUP);
-static GFButton rightBtn(A1, E_GFBUTTON_PULLUP);
+static GFButton rightBtn(A3, E_GFBUTTON_PULLUP);
 
 void MainMenu::pressedUp() {
   _optionsMenu.moveSelectionUp();
@@ -18,14 +19,14 @@ void MainMenu::pressedDown() {
 
 void MainMenu::pressedRight() {
   int inx = _optionsMenu.getSelectionInx();
-  Serial.println("Inx: "+String(inx));
+  // state 0 is menu, after that, as list displays
+  changeState(inx+1);
 }
 
 void MainMenu::menuSetup() {
    OptionsMenu();
-  _optionsMenu.addOption("Escholhe ai rapidao");
-  _optionsMenu.addOption("p/ eu ver um negocio");
-  String selectionList[] = {"ScreamJump","Shooting Stars", "Maze crawler", "Mais um", "E outro"};
+  _optionsMenu.addOption("Selecione o jogo");
+  String selectionList[] = {"ScreamJump","Shooting Stars", "Maze crawler"};
   _optionsMenu.createSelectionList(selectionList);
   upBtn.setReleaseHandler(pressedUp);
   downBtn.setReleaseHandler(pressedDown);
