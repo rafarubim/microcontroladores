@@ -3,15 +3,11 @@
 #include "ScreamJump.hpp"
 #include "mazeCrawler.hpp"
 #include "ShootingStars.hpp"
-#include "Highscore.hpp"
 
 static States currentState = MENU;
 
 void machineSetup() {
   MainMenu::menuSetup();
-  setupGame();
-  shootingStarsSetup();
-  setupMazeCrawler();
 }
 
 void machineLoop() {

@@ -1,11 +1,12 @@
 #pragma once
+
 #include "Pos.h"
 #include "arrayUtils.h"
 #include <arduino.h>
 
-#define maxSimultaneousDrawings 10
-#define drawingsBufferSize 30
-#define stampsBufferSize 20
+#define maxSimultaneousDrawings 5
+#define drawingsBufferSize 10
+#define stampsBufferSize 30
 
 struct BufferedDrawing {
   byte drawing[8];
