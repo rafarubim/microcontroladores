@@ -14,3 +14,5 @@ void machineSetup();
 void machineLoop();
 
 void changeState(States state);
+
+void setupState(States state);

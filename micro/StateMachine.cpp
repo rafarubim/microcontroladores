@@ -37,6 +37,15 @@ void machineLoop() {
   }
 }
 
-void changeState(States state) {
-  currentState = state;
-}
+void changeState(States state) { 
+  currentState = state; 
+} 
+
+void setupState(States state) { 
+  if (state == SCREAM_JUMP) 
+      setupGame(); 
+  else if (state == SHOOTING_STARS) 
+    shootingStarsSetup(); 
+  else if (state == MAZE_CRAWLER) 
+    setupMazeCrawler(); 
+} 
