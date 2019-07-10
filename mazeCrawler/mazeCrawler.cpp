@@ -10,7 +10,7 @@
 #define HGT 4
 
 //LiquidCrystal lcd(12, 8, 11, 5, 4, 3, 2);
-Lcd lcd = Lcd::getInstance();
+static Lcd lcd = Lcd::getInstance();
 static char* gameNameAnimation[] = {
   "   __  ______ ____  ____  ________  ___ _      ____   _______ ",
   "  /  |/  / _ /_  / / __/ / ___/ _ |/ _ | | /| / / /  / __/ _ |",
@@ -43,10 +43,10 @@ static unsigned long previousMillis = millis();
 static int currentNote = -1;
 
 // components
-GFButton upBtn(A0, E_GFBUTTON_PULLUP);
-GFButton leftBtn(A1, E_GFBUTTON_PULLUP);
-GFButton downBtn(A2, E_GFBUTTON_PULLUP);
-GFButton rightBtn(A3, E_GFBUTTON_PULLUP);
+static GFButton upBtn(A0, E_GFBUTTON_PULLUP);
+static GFButton leftBtn(A1, E_GFBUTTON_PULLUP);
+static GFButton downBtn(A2, E_GFBUTTON_PULLUP);
+static GFButton rightBtn(A3, E_GFBUTTON_PULLUP);
 static const int toneGround = 6; //TODO (camila)
 static const int tonePin = A7;
 
