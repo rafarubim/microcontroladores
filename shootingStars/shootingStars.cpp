@@ -107,10 +107,10 @@ void startGame(Lcd& lcd){
   }
 }
 
-void drawWall(Lcd* lcd, Wall& wall) {
+void drawWall(Lcd& lcd, Wall& wall) {
   for( int y = 0; y < 5; y++ ){
     if ( y != wall.gap ){
-      lcd->stamp(WALL, floor(wall.x), y);
+      lcd.stamp(WALL, floor(wall.x), y);
     }
   }
 }
@@ -153,7 +153,7 @@ static bool checkCollision(Wall walls[]) {
   return false;
 }
 
-void setupGameStar ()
+void shootingStarsSetup()
 {
   Serial.begin(9600);
   pinMode(buttonPin, INPUT);
@@ -163,7 +163,7 @@ void setupGameStar ()
   
 }
 
-unsigned long gameLoopStar()
+unsigned long shootingStarsLoop()
 { 
   Lcd& lcd = Lcd::getInstance();
   Graphics graphics = Graphics::getInstance();
