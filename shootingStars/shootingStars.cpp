@@ -73,8 +73,7 @@ struct Wall {
 Wall walls[WALL_AMOUNT] = {Wall(7,random(0,4)), Wall(12, random(0,4)), Wall(17, random(0,4))};
 
 
-void startGame(){
-  Lcd lcd = Lcd::getInstance();
+void startGame(Lcd& lcd){
   lcd.clear();
   velocityY = 0;
   positionX = 0;
@@ -164,14 +163,14 @@ void setupGameStar ()
   
 }
 
-unsigned long gameLoopStar(Lcd* lcd)
+unsigned long gameLoopStar()
 { 
-  
+  Lcd& lcd = Lcd::getInstance();
   Graphics graphics = Graphics::getInstance();
   
   if ( playing ) {
     if ( checkCollision(walls) ) {
-        lcd->clear();
+        lcd.clear();
         score = ((millis() - initial) / 1000);
 //        Jogador jogador = {"", (float)score};
         velocityY = 0;
@@ -194,7 +193,7 @@ unsigned long gameLoopStar(Lcd* lcd)
     }
   }
   else {
-    startGame();
+    startGame(lcd);
   }
   time_flag = millis();
   previousMillis = play(shootingstars, (sizeof(shootingstars)/sizeof(Note)) - 1 , previousMillis, currentNote, outputTone, tonePin);
