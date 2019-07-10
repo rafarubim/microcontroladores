@@ -4,6 +4,7 @@
 #include <arduino.h>
 #include "Pos.h"
 #include <GFButton.h>
+#include "highscore.hpp"
 
 #define WALL_AMOUNT 3
 
@@ -150,11 +151,12 @@ unsigned long gameLoopStar(Lcd* lcd)
     if ( checkCollision(walls) ) {
         lcd->clear();
         score = ((millis() - initial) / 1000);
+        Jogador jogador = {"", (float)score};
         velocityY = 0;
         positionX = 0;
         positionY = 17;
         playing = !playing;
-        return score;
+        return jogador;
     }
     moment = (millis() - time_flag)/1000.;
     Update(moment, graphics);
