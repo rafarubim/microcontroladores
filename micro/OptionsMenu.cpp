@@ -62,7 +62,7 @@ int OptionsMenu::getSelectionInx() {
 }
 
 void OptionsMenu::drawOptions() {
-  Lcd lcd = Lcd::getInstance();
+  Lcd& lcd = Lcd::getInstance();
   for (int i = _currentScroll; i < _optionsAmount && i < _currentScroll + lcd.getRows(); i++) {
     int row = i - _currentScroll;
     lcd.setCursor(0, row);
