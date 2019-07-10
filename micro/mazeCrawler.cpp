@@ -314,7 +314,7 @@ static void startGame(){
         stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
       }
     }
-    delay(100);
+    delay(200);
   }
   lcd.clear();
   lcd.setCursor(1,1);
@@ -348,14 +348,10 @@ void setupMazeCrawler() {
   shuffle(mazeOrder, NUM_MAZES);
   currentMaze = mazeOrder[currentMazeIndex];
 
-  
+  startGame();
 }
 
 void mazeCrawlerLoop() {
-  if (firstLoop) {
-    startGame();
-    firstLoop = 0;
-  }
   
   upBtn.process(); downBtn.process(); rightBtn.process(); leftBtn.process();
 

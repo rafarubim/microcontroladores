@@ -1,7 +1,6 @@
 #include "Lcd.hpp"
 #include "Animation.hpp"
 #include "Graphics.hpp"
-#include "screamJump.hpp"
 #include <arduino.h>
 #include "StateMachine.hpp"
 
@@ -14,7 +13,6 @@ void setup ()
   Lcd::configLcd(COLS, ROWS);
 
   //Animation::opening();
-
   
   Graphics& graphics = Graphics::getInstance();
   graphics.setFps(20);
