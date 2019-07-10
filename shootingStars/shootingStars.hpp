@@ -4,4 +4,4 @@
 
 void setupGameStar();
    
-void gameLoopStar(Lcd* lcd);
+void gameLoopStar();

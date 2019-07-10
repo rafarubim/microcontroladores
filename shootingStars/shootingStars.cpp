@@ -3,10 +3,28 @@
 #include "Graphics.hpp"
 #include <arduino.h>
 #include "Pos.h"
+#include "music.h"
 #include <GFButton.h>
-#include "highscore.hpp"
+//#include "highscore.hpp"
 
 #define WALL_AMOUNT 3
+
+static Note shootingstars[] = {{Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
+                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Fsharp5, 500/2, 0},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2}};
 
 static const char* Menu[] = {" ____     _    _      __       __     ____     __     __ _      ___          ____     ____     __      ____     ____ ",
                              "|*___)   | |  |*|    /  *     /  *   (_ *_)   (  )   |  | |    / __)        /*___)   (_  _)   /*_ |   (  _ |   /*___)",
@@ -23,9 +41,9 @@ static byte STAR[8] = {
   0b10001,
   0b00000
 };
-const int buttonPin = A1;
-int buttonState = 0;
-unsigned long previousMillis = 0;
+static const int buttonPin = A1;
+static int buttonState = 0;
+static unsigned long previousMillis = 0;
 static byte WALL = 0xff;
 static unsigned long score;
 static unsigned long initial;
@@ -34,13 +52,17 @@ static int maxY = 34;
 static int minY = 0 + STARSize;
 static int maxRow = 3;
 static bool playing = false;
-double velocityY = 0;
-double gravity = 80;
-double positionY = 17;
-double positionX = 0;
+static double velocityY = 0;
+static double gravity = 80;
+static double positionY = 17;
+static double positionX = 0;
 static unsigned long time_flag = 0;
 static double moment;
 
+static bool outputTone = false;
+static int currentNote = -1;
+static const int toneGround = 6;
+static const int tonePin = A7;
 
 struct Wall {
   int x;
@@ -136,8 +158,8 @@ void setupGameStar ()
 {
   Serial.begin(9600);
   pinMode(buttonPin, INPUT);
-  pinMode(ground, OUTPUT);
-  digitalWrite(ground, LOW);
+  pinMode(toneGround, OUTPUT);
+  digitalWrite(toneGround, LOW);
   pinMode(tonePin, OUTPUT);
   
 }
@@ -151,12 +173,12 @@ unsigned long gameLoopStar(Lcd* lcd)
     if ( checkCollision(walls) ) {
         lcd->clear();
         score = ((millis() - initial) / 1000);
-        Jogador jogador = {"", (float)score};
+//        Jogador jogador = {"", (float)score};
         velocityY = 0;
         positionX = 0;
         positionY = 17;
         playing = !playing;
-        return jogador;
+//        return jogador;
     }
     moment = (millis() - time_flag)/1000.;
     Update(moment, graphics);
@@ -175,5 +197,6 @@ unsigned long gameLoopStar(Lcd* lcd)
     startGame();
   }
   time_flag = millis();
+  previousMillis = play(shootingstars, (sizeof(shootingstars)/sizeof(Note)) - 1 , previousMillis, currentNote, outputTone, tonePin);
   graphics.processGraphics();
 }
