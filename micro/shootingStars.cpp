@@ -117,12 +117,12 @@ void startGame() {
 }
 
 void drawWall(Wall& wall) {
-  Graphics& graphics = Graphics::getInstance();
-  //Lcd& lcd = Lcd::getInstance();
+//  Graphics& graphics = Graphics::getInstance();
+  Lcd& lcd = Lcd::getInstance();
   for ( int y = 0; y < 5; y++ ) {
     if ( y != wall.gap ) {
-        graphics.stamp(char(WALL), WALL, Pos(floor(wall.x), y));
-      //lcd.stamp((char)0xff, floor(wall.x), y);
+//        graphics.stamp(char(WALL), WALL, Pos(floor(wall.x), y));
+      lcd.stamp((char)0xff, floor(wall.x), y);
     }
   }
 }
@@ -156,8 +156,8 @@ static bool checkCollision(Wall walls[]) {
   static double radius = 2;
 
   for (int i = 0; i < WALL_AMOUNT; i++) {
-    if ( ( (int)(positionX / 5) - 1 == (int)walls[i].x )) {
-      if ( (int)(((positionY-STARSize/2) / 8) + 1) != ((int)walls[i].gap + 1) ){
+    if ( ( (int)(positionX / 6) == (int)walls[i].x )) {
+      if ( (int)(((positionY-STARSize/2) / 9) + 1) != ((int)walls[i].gap + 1) ){
         return true;
       }
     }
