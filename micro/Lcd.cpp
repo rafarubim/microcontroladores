@@ -7,8 +7,7 @@ Lcd* Lcd::_lcdInstance = null;
 int Lcd::_defaultCols = 0;
 int Lcd::_defaultRows = 0;
 
-Lcd::Lcd(int cols, int rows): LiquidCrystal(_Rs, _Rw, _En, _D4, _D5, _D6, _D7), _cols(cols), _rows(rows) {
-  digitalWrite(_Rw, LOW);
+Lcd::Lcd(int cols, int rows): LiquidCrystal(_Rs, _En, _D4, _D5, _D6, _D7), _cols(cols), _rows(rows) {
   begin(cols, rows);
 }
 

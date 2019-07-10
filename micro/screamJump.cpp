@@ -40,7 +40,7 @@ static byte PLATFORM[8] = {
   0b00000,
   0b00000,
   0b11111,
-  0b11111
+  0b00000
 };
 
 struct Platform {
@@ -51,9 +51,9 @@ struct Platform {
 
 Platform platforms[PLATFORM_AMOUNT] = {Platform(5), Platform(7), Platform(9)};
 
-void drawPlatform(Graphics graphics, Platform& platform) {
-  graphics.stamp('_', Pos(platform.x, maxY));
-  graphics.stamp('_', Pos(platform.x + 5, maxY));
+void drawPlatform(Graphics& graphics, Platform& platform) {
+  graphics.stamp('_', PLATFORM, Pos(platform.x, maxY));
+  graphics.stamp('_', PLATFORM, Pos(platform.x + 5, maxY));
 }
 
 double velocityY = 0;
@@ -99,7 +99,6 @@ void gameLoop()
   sum = 0 ; // Reset the sum of the measurement values
   
   if (level > 45) {
-    Serial.println("Level: "+String(level));
     OnSoundLevelHigh(level);
   }
   else {

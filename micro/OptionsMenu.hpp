@@ -30,5 +30,6 @@ public:
   }
   void moveSelectionUp();
   void moveSelectionDown();
+  int getSelectionInx();
   void drawOptions();
 };

@@ -36,6 +36,12 @@ void Graphics::drawInCharBuffer(int currentRow, int currentCol, const byte (&dra
   }
 }
 
+void Graphics::drawDefinedDrawings() {
+  for (int i = 0; i < _definedDrawingsAmount; i ++) {
+    pushElem(_drawingsBuffer, _drawingsAmount, _drawingsDefined[i]);
+  }
+}
+
 Graphics& Graphics::getInstance() {
   if (_graphicsInstance != null) {
     return *_graphicsInstance;
@@ -50,19 +56,18 @@ double Graphics::getFps() {
 
 void Graphics::setFps(double fps) {
   _fps = fps;
-  //_delayFrames = ceil(fps / _initialFps) - 1;
 }
 
 void Graphics::draw(const byte (&drawing)[8], Pos pos) {
   BufferedDrawing bufferedDrawing =  BufferedDrawing(drawing, Pos(pos.x, pos.y - 7), 1 + _delayFrames);
-  pushElem(_drawingsBuffer, _drawingsAmount, bufferedDrawing);
+  pushElem(_drawingsDefined, _definedDrawingsAmount, bufferedDrawing);
 }
 
-void Graphics::stamp(char c, Pos pos) {
-  Lcd lcd = Lcd::getInstance();
-  int col = pos.x / 6;
-  int row = pos.y / 9;
-  lcd.stamp(c, col, row);
+void Graphics::stamp(char c, const byte (&representation)[8], Pos pos) {
+  BufferedStamp bufferedStamp = BufferedStamp(c, representation, pos);
+  Serial.println("Before: "+String(_stampsAmount));
+  pushElem(_stampsBuffer, _stampsAmount, bufferedStamp);
+  Serial.println("After: "+String(_stampsAmount));
 }
 
 void Graphics::flushScreen() {
@@ -86,7 +91,22 @@ void Graphics::flushScreen() {
         }
       }
       if (isBufferEmpty) {
-        lcd.stamp(' ', j, i);
+        bool stamped = false;
+        for (int k = 0; k < _stampsAmount; k++) {
+          int col = _stampsBuffer[k].pos.x / 6;
+          int row = _stampsBuffer[k].pos.y / 9;
+          if (col == i && row == j) {
+            stamped = true;
+            if (_stampsBuffer[k].isChar) {
+              lcd.stamp(_stampsBuffer[k].c, col, row);
+            } else {
+              lcd.stamp(_stampsBuffer[k].b, col, row);
+            }
+          }
+        }
+        if (!stamped) {
+          lcd.stamp(' ', j, i);
+        }
       } else {
         lcd.stampTemp(_charBuffer, j, i);
       }
@@ -105,6 +125,9 @@ void Graphics::processGraphics() {
   unsigned long now = millis();
   if (now - _lastFlush >= 1000 / _fps) {
     _lastFlush = now;
+    drawDefinedDrawings();
     flushScreen();
   }
+  _definedDrawingsAmount = 0;
+  _stampsAmount = 0;
 }

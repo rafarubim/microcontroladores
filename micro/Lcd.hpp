@@ -1,15 +1,16 @@
+
 #pragma once
 
 #include <LiquidCrystal.h>
 #include "Pos.h"
 #include <arduino.h>
 
-#define MAX_TEMPS 8
+#define MAX_TEMPS 4
 
 static byte FLOATING_X =0b11101011;
 
 class Lcd: public LiquidCrystal {
-  static const int _Rs = 12, _En = 11, _D4 = 5, _D5 = 4, _D6 = 3, _D7 = 2, _Rw = 8;
+  static const int _Rs = 12, _En = 11, _D4 = 5, _D5 = 4, _D6 = 3, _D7 = 2;
   static int _defaultCols, _defaultRows;
   static Lcd* _lcdInstance;
   int _cols, _rows;
@@ -31,6 +32,7 @@ public:
   void rightToLeft();
   void scrollDisplayLeft();
   void scrollDisplayRight();
+  
   void write(char c);
   void print(String str);
   void pushCursorPos();
