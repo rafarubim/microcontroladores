@@ -1,7 +1,6 @@
 #include "mazeCrawler.hpp"
-#include "music.hpp"
+#include "music.h"
 #include "Lcd.hpp"
-#include "Animation.hpp"
 #include<GFButton.h>
 
 // number of mazes player has to go through
@@ -10,6 +9,8 @@
 #define LEN 19
 #define HGT 4
 
+//LiquidCrystal lcd(12, 8, 11, 5, 4, 3, 2);
+Lcd lcd = Lcd::getInstance();
 static char* gameNameAnimation[] = {
   "   __  ______ ____  ____  ________  ___ _      ____   _______ ",
   "  /  |/  / _ /_  / / __/ / ___/ _ |/ _ | | /| / / /  / __/ _ |",
@@ -42,11 +43,10 @@ static unsigned long previousMillis = millis();
 static int currentNote = -1;
 
 // components
-Lcd lcd = Lcd::getInstance();
-GFButton upBtn = GFButton(A0, E_GFBUTTON_PULLDOWN);
-GFButton leftBtn = GFButton(A1, E_GFBUTTON_PULLDOWN);
-GFButton downBtn = GFButton(A2, E_GFBUTTON_PULLDOWN);
-GFButton rightBtn = GFButton(A4, E_GFBUTTON_PULLDOWN);
+GFButton upBtn(A0, E_GFBUTTON_PULLUP);
+GFButton leftBtn(A1, E_GFBUTTON_PULLUP);
+GFButton downBtn(A2, E_GFBUTTON_PULLUP);
+GFButton rightBtn(A3, E_GFBUTTON_PULLUP);
 static const int toneGround = 6; //TODO (camila)
 static const int tonePin = A7;
 
@@ -175,6 +175,11 @@ static byte RIGHT[8] = {
   B00001
 };
 
+static void stamp(char c, int x, int y) {
+  lcd.setCursor(x, y);
+  lcd.write(c);
+}
+
 // auxiliar function to swap array items
 static void swap(int *v, int i, int j) {
   int temp = v[i];
@@ -196,26 +201,27 @@ static void shuffle(int *v, int n)
 static void draw_maze() {
   for (int i = 0; i < HGT; i++) {
     for (int j = 0; j < LEN; j++) {
-      lcd.stamp(byte(maze[currentMaze][i][j]), j, i);
+      stamp(byte(maze[currentMaze][i][j]), j, i);
     }
   }
 
   // draw dot on intial position (0, 3)
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += addDot;
 }
 
 static void up_cb() {
+  Serial.println("up");
   if (!playing) return;
   if (currentY == 0 || maze[currentMaze][currentY-1][currentX]%4==1 || maze[currentMaze][currentY-1][currentX]%4==3) {
     return;
   }
   // remove dot from previous position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += removeDot;
   currentY--; // updates dot position
   // add dot to new position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += addDot;
 }
 
@@ -231,22 +237,23 @@ static void down_cb() {
     return;
   }
   // remove dot from previous position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += removeDot;
   currentY++; // updates dot position
   // add dot to new position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += addDot;
 }
 
 static void right_cb() {
+  Serial.println("right");
   if (!playing) return;
   if (currentX==LEN-1 && currentY==HGT-1) { // victory
     if (currentMazeIndex == NUM_MAZES - 1) { // was last maze
       // remove dot from previous position
-      lcd.stamp(byte(0), currentX, currentY);
+      stamp(byte(0), currentX, currentY);
       // add dot to new position
-      lcd.stamp(byte(4), LEN, HGT-1);
+      stamp(byte(4), LEN, HGT-1);
 
       score = 1.0e7/(millis()-initialTimeFlag);
 
@@ -262,7 +269,7 @@ static void right_cb() {
     else { // go to next maze
      currentMaze = mazeOrder[++currentMazeIndex];
       // remove dot from previous position
-      lcd.stamp(byte(0), currentX, currentY);
+      stamp(byte(0), currentX, currentY);
       // resets dot position to beggining of next maze
       currentX = 0; currentY = 3;
       draw_maze();
@@ -273,41 +280,40 @@ static void right_cb() {
     return;
   }
   // remove dot from previous position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += removeDot;
   currentX++; // updates dot position
   // add dot to new position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += addDot;
 }
 
 static void left_cb() {
+  Serial.println("left");
   if (!playing) return;
   if (currentX == 0 || maze[currentMaze][currentY][currentX-1]%4==2 || maze[currentMaze][currentY][currentX-1]%4==3) {
     return;
   }
   // remove dot from previous position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + removeDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += removeDot;
   currentX--; // updates dot position
   // add dot to new position
-  lcd.stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
+  stamp(byte(maze[currentMaze][currentY][currentX] + addDot), currentX, currentY);
   maze[currentMaze][currentY][currentX] += addDot;
 }
 
 static void startGame(){
   lcd.clear();
-  for ( int scroll = 0; scroll < 49; scroll++) {
+  for ( int scroll = 0; scroll < 22; scroll++) {
     for( int i = 0; i < 4; i++ ) {
       for( int j = scroll; j < (20+scroll); j++) {
-        lcd.stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
+        stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
       }
-    }
-    if (scroll == 48) {
-      Animation::opening();
     }
     delay(100);
   }
+  lcd.clear();
   lcd.setCursor(1,1);
   lcd.print("Pressione o botao");
   lcd.setCursor(4,2);
@@ -315,12 +321,13 @@ static void startGame(){
 }
 
 void setupMazeCrawler() {
+  Serial.begin(9600);
   randomSeed(analogRead(0));
 
   pinMode(toneGround, OUTPUT);
   digitalWrite(toneGround, LOW);
   pinMode(tonePin, OUTPUT);
-
+//
   lcd.createChar(0, BLANK);
   lcd.createChar(1, BOTTOM);
   lcd.createChar(2, RIGHT);
@@ -330,14 +337,14 @@ void setupMazeCrawler() {
   lcd.createChar(6, DOTRIGHT);
   lcd.createChar(7, DOTBOTTOMRIGHT);
   lcd.begin(20, 4);
-  upBtn.setPressHandler(up_cb);
-  downBtn.setPressHandler(down_cb);
-  rightBtn.setPressHandler(right_cb);
-  leftBtn.setPressHandler(left_cb);
+  upBtn.setReleaseHandler(up_cb);
+  downBtn.setReleaseHandler(down_cb);
+  rightBtn.setReleaseHandler(right_cb);
+  leftBtn.setReleaseHandler(left_cb);
 
   shuffle(mazeOrder, NUM_MAZES);
   currentMaze = mazeOrder[currentMazeIndex];
-  
+
   startGame();
 }
 
@@ -345,11 +352,4 @@ void mazeCrawlerLoop() {
   upBtn.process(); downBtn.process(); rightBtn.process(); leftBtn.process();
 
   previousMillis = play(labyrinth, (sizeof(labyrinth)/sizeof(Note)) - 1 , previousMillis, currentNote, outputTone, tonePin);
-
-  if (!playing) {
-    lcd.noDisplay();
-    delay(500);
-    lcd.display();
-    delay(500);
-  }
 }
