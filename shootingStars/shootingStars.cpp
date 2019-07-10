@@ -7,27 +7,10 @@
 
 #define WALL_AMOUNT 3
 
-static char* Menu[] = {" ____     _    _      __       __     ____     __     __ _      ___          ____     ____     __      ____     ____ ",
-                       "|*___)   | |  |*|    /  *     /  *   (_ *_)   (  )   |  | |    / __)        /*___)   (_  _)   /*_ |   (  _ |   /*___)",
-                       "|___ |   | )__( |   (  O )   (  O )    )( *    )(    |  * |   ( (__|        |___*|    *)(    | || |    ) * /   |___*|",
-                       "(____|*  |*|  | |    *__/     *__/    (__)    (__)   *_|__|    *___/        (____/    (__)   |_/|_/   (__|_)   (____/"};
-               
-//Note shootingstars[] = {{Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Dsharp5, 1500/2, 375/2},{Dsharp5, 250/2, 250/2},{E5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 500/2, 0},{Gsharp4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2},
-//                 {Fsharp5, 1500/2, 375/2},{Fsharp5, 250/2, 250/2},{Gsharp5, 500/2, 375/2},{Fsharp5, 500/2, 0},{Dsharp5, 500/2, 0},{B4, 250/2, 50/2}};
+static const char* Menu[] = {" ____     _    _      __       __     ____     __     __ _      ___          ____     ____     __      ____     ____ ",
+                             "|*___)   | |  |*|    /  *     /  *   (_ *_)   (  )   |  | |    / __)        /*___)   (_  _)   /*_ |   (  _ |   /*___)",
+                             "|___ |   | )__( |   (  O )   (  O )    )( *    )(    |  * |   ( (__|        |___*|    *)(    | || |    ) * /   |___*|",
+                             "(____|*  |*|  | |    *__/     *__/    (__)    (__)   *_|__|    *___/        (____/    (__)   |_/|_/   (__|_)   (____/"};
 
 static byte STAR[8] = {
   0b00000,
@@ -41,13 +24,10 @@ static byte STAR[8] = {
 };
 const int buttonPin = A1;
 int buttonState = 0;
-bool outputTone = false;
-const int tonePin = 6;
-const int ground = A7;
 unsigned long previousMillis = 0;
-int current = -1;
 static byte WALL = 0xff;
 static unsigned long score;
+static unsigned long initial;
 static int STARSize = 6;
 static int maxY = 34;
 static int minY = 0 + STARSize;
@@ -94,6 +74,7 @@ void startGame(){
   for(;;){
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
+      initial = millis();
       playing = !playing;
       return;
     }
@@ -141,10 +122,10 @@ static bool checkCollision(Wall walls[]) {
   double radius = 2;
   
   for(int i = 0; i < WALL_AMOUNT; i++){
-
-//    if (((cX + radius) >= 5*(walls[i].x + 1)) && ((cX - radius) <= 5*(walls[i].x + 2)) && ((cY + radius) >= 8*(walls[i].gap + 1)) && ((cY - radius) <= 7*(walls[i].gap))) {
-    if (((cX - radius) <= 5*(walls[i].x + 1)) && ((cX + radius) >= 5*(walls[i].x + 1))) {
-      return true;
+    if ( ( (int)(positionX / 5) - 1 == (int)walls[i].x )) {
+      if ( (int)(positionY / 8) != ((int)walls[i].gap + 1) ){
+        return true;
+      }
     }
   }
   return false;
@@ -159,26 +140,26 @@ void setupGameStar ()
   pinMode(tonePin, OUTPUT);
   
 }
-   
-void gameLoopStar(Lcd* lcd)
+
+unsigned long gameLoopStar(Lcd* lcd)
 { 
   
   Graphics graphics = Graphics::getInstance();
   
   if ( playing ) {
-//    previousMillis = play(shootingstars, (sizeof(shootingstars)/sizeof(Note)) - 1 , previousMillis, current, outputTone, tonePin);
     if ( checkCollision(walls) ) {
         lcd->clear();
+        score = ((millis() - initial) / 1000);
         velocityY = 0;
         positionX = 0;
         positionY = 17;
         playing = !playing;
-        return;
+        return score;
     }
     moment = (millis() - time_flag)/1000.;
     Update(moment, graphics);
     graphics.draw(STAR, Pos(floor(positionX), floor(positionY)));
-
+    
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
       jump();
@@ -190,7 +171,6 @@ void gameLoopStar(Lcd* lcd)
   }
   else {
     startGame();
-//    noTone(tonePin);
   }
   time_flag = millis();
   graphics.processGraphics();
