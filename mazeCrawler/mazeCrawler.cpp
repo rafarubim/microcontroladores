@@ -337,6 +337,8 @@ void setupMazeCrawler() {
 
   shuffle(mazeOrder, NUM_MAZES);
   currentMaze = mazeOrder[currentMazeIndex];
+  
+  startGame();
 }
 
 void mazeCrawlerLoop() {
