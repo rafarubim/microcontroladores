@@ -3,9 +3,41 @@
 #include <EEPROM.h>
 #include <GFButton.h>
 #include <arduino.h>
+#include "OptionsMenu.hpp"
+#include "StateMachine.hpp"
 
 #define null 0
 #define qtdJogadores 8
+
+struct Highscore {
+  Jogador jogador[qtdJogadores];
+};
+
+typedef bool (*ComparacaoJogadores)(Jogador, Jogador);
+
+static void save_score(int endereco, Highscore highscore);
+
+static Highscore get_score(int endereco);
+
+static void confirm();
+
+static void getNameDownButtonPressed();
+
+static void getNameUpButtonPressed();
+
+static void getNameLeftButtonPressed();
+
+static void getNameRightButtonPressed();
+
+static void showHighscoreDownButtonPressed();
+
+static void showHighscoreUpButtonPressed();
+
+static void showHighscoreLeftButtonPressed();
+
+static bool jogadorTemMaisPontos(Jogador j1, Jogador j2);
+
+static bool jogadorTemMenosPontos(Jogador j1, Jogador j2);
 
 static char main_word[4] = "AAA";
 static int CursorPoint = 0;
@@ -14,83 +46,63 @@ static int flag_end = 0;
 static const int initialsY = 1;
 static const int okX = 15;
 static Jogador jogadorToGetName;
+static OptionsMenu _optionsMenu = OptionsMenu();
 
 static GFButton UpButton = GFButton(A0, E_GFBUTTON_PULLUP);
 static GFButton LeftButton = GFButton(A1, E_GFBUTTON_PULLUP);
 static GFButton DownButton = GFButton(A2, E_GFBUTTON_PULLUP);
 static GFButton RightButton = GFButton(A4, E_GFBUTTON_PULLUP);
 
-static void save_score(int endereco, Highscore highscore);
+static ComparacaoJogadores comparacoesTables[] = {
+  jogadorTemMaisPontos, // SCREAM_JUMP
+  jogadorTemMaisPontos, // SHOOTING_STARS
+  jogadorTemMenosPontos // MAZE_CRAWLER
+};
 
-static Highscore get_score(int endereco);
+static int enderecosTables[] = {
+  0*sizeof(Highscore), // SCREAM_JUMP
+  1*sizeof(Highscore), // SHOOTING_STARS
+  2*sizeof(Highscore) // MAZE_CRAWLER
+};
 
-static void down_button_pressed();
+static String nomesTables[] = {
+  "Scream JUMP!", // SCREAM_JUMP
+  "Shooting Stars", // SHOOTING_STARS
+  "Maze Crawler" // MAZE_CRAWLER
+};
 
-static void up_button_pressed();
-
-static void left_button_pressed();
-
-static void confirm();
-
-static void right_button_pressed();
-
-void print_score(int endereco) {
+bool isPlayerRecordist(HighscoreTables game, Jogador jogador) {
+  int endereco = enderecosTables[game];
+  ComparacaoJogadores compararJogadores = comparacoesTables[game];
   Highscore highscore = get_score(endereco);
-  Lcd& lcd = Lcd::getInstance();
-  for (int i = 0; i< qtdJogadores ; i++) {
-    lcd.setCursor(0, 0);
-    lcd.print(String(i+1));
-    lcd.print(" -> ");
-    lcd.print(highscore.jogador[i].nome);
-    lcd.print(" -> ");
-    lcd.print(String(highscore.jogador[i].pontos));
-    delay(1000);
-    lcd.clear();
-  }
-}
-
-bool jogadorTemMaisPontos(Jogador j1, Jogador j2) {
-  if (j1.pontos > j2.pontos) {
-    return true;
-  }
-  return false;
-}
-
-bool jogadorTemMenosPontos(Jogador j1, Jogador j2) {
-  if (j1.pontos < j2.pontos) {
-    return true;
-  }
-  return false;
-}
-
-bool isPlayerRecordist(int endereco, Jogador jogador, ComparacaoJogadores compararJogadores) {
-    Highscore highscore = get_score(endereco);
-    for (int i = 0; i < qtdJogadores ; i++) {
-      if (highscore.jogador[i].nome[0] == '\0') {
-        return true;
-      }
-      if (compararJogadores(jogador, highscore.jogador[i])) {
+  for (int i = 0; i < qtdJogadores ; i++) {
+    if (highscore.jogador[i].nome[0] == '\0') {
+      return true;
+    }
+    if (compararJogadores(jogador, highscore.jogador[i])) {
       return true;
     }
   }
   return false;
 }
 
-bool addPlayerRecord(int endereco, Jogador jogador, ComparacaoJogadores compararJogadores) {
-    Highscore highscore = get_score(endereco);
-    for (int i = 0; i < qtdJogadores ; i++) {
-      if (highscore.jogador[i].nome[0] == '\0') {
-        highscore.jogador[i] = jogador;
-        save_score(endereco, highscore);
-        return true;
+bool addPlayerRecord(HighscoreTables game, Jogador jogador) {
+  int endereco = enderecosTables[game];
+  ComparacaoJogadores compararJogadores = comparacoesTables[game];
+  Highscore highscore = get_score(endereco);
+  for (int i = 0; i < qtdJogadores ; i++) {
+    if (highscore.jogador[i].nome[0] == '\0') {
+      highscore.jogador[i] = jogador;
+      save_score(endereco, highscore);
+      return true;
+    }
+    if (compararJogadores(jogador, highscore.jogador[i])) {
+      for(int k = qtdJogadores-1; k > i; k--) {
+        highscore.jogador[k].pontos = highscore.jogador[k-1].pontos;
+        highscore.jogador[k].nome[0] = highscore.jogador[k-1].nome[0];
+        highscore.jogador[k].nome[1] = highscore.jogador[k-1].nome[1];
+        highscore.jogador[k].nome[2] = highscore.jogador[k-1].nome[2];
       }
-      if (compararJogadores(jogador, highscore.jogador[i])) {
-        for(int k = qtdJogadores-1; k > i; k--) {
-          highscore.jogador[k].pontos = highscore.jogador[k-1].pontos;
-          highscore.jogador[k].nome[0] = highscore.jogador[k-1].nome[0];
-          highscore.jogador[k].nome[1] = highscore.jogador[k-1].nome[1];
-          highscore.jogador[k].nome[2] = highscore.jogador[k-1].nome[2];
-        }
       highscore.jogador[i] = jogador;
       save_score(endereco, highscore);
       return true;
@@ -99,7 +111,8 @@ bool addPlayerRecord(int endereco, Jogador jogador, ComparacaoJogadores comparar
   return false;
 }
 
-void clear_score(int endereco) {
+void clear_score(HighscoreTables game) {
+  int endereco = enderecosTables[game];
   Highscore highscore = get_score(endereco);
   for (int i = 0; i< qtdJogadores ; i++) {
     highscore.jogador[i] = {{'\0'},0};
@@ -108,10 +121,10 @@ void clear_score(int endereco) {
 }
 
 void setupGetPlayerName(int pontos) {
-  UpButton.setPressHandler(up_button_pressed);
-  DownButton.setPressHandler(down_button_pressed);
-  RightButton.setPressHandler(right_button_pressed);
-  LeftButton.setPressHandler(left_button_pressed);
+  UpButton.setPressHandler(getNameUpButtonPressed);
+  DownButton.setPressHandler(getNameDownButtonPressed);
+  RightButton.setPressHandler(getNameRightButtonPressed);
+  LeftButton.setPressHandler(getNameLeftButtonPressed);
 
   jogadorToGetName.pontos = pontos;
   CursorPoint = 0;
@@ -138,6 +151,26 @@ void loopGetPlayerName() {
   LeftButton.process();
 }
 
+void setupShowHighscore(HighscoreTables game) {
+  int endereco = enderecosTables[game];
+  Highscore highscore = get_score(endereco);
+  _optionsMenu.addOption("Highscore de");
+  _optionsMenu.addOption(nomesTables[game]);
+  String scores[qtdJogadores];
+  for (int i = 0; i < qtdJogadores; i++) {
+    scores[i] = String(i+1) + "o: " + String(highscore.jogador[i].nome) + " - " + String(highscore.jogador[i].pontos);
+  }
+  _optionsMenu.createSelectionList(scores);
+
+  UpButton.setPressHandler(showHighscoreUpButtonPressed);
+  DownButton.setPressHandler(showHighscoreDownButtonPressed);
+  LeftButton.setPressHandler(showHighscoreLeftButtonPressed);
+}
+
+void loopShowHighscore() {
+  _optionsMenu.drawOptions();
+}
+
 static void save_score(int endereco, Highscore highscore) {
   EEPROM.put(endereco, highscore);
 }
@@ -148,7 +181,7 @@ static Highscore get_score(int endereco) {
    return highscore;
 }
 
-static void down_button_pressed() {
+static void getNameDownButtonPressed() {  
   Lcd& lcd = Lcd::getInstance();
   if (CursorPoint < 3) {
     main_word[CursorPoint]++;
@@ -159,8 +192,7 @@ static void down_button_pressed() {
   }
 }
 
-
-static void up_button_pressed(){
+static void getNameUpButtonPressed() {
   Lcd& lcd = Lcd::getInstance();
   if (CursorPoint < 3) {
     main_word[CursorPoint]--;
@@ -171,7 +203,7 @@ static void up_button_pressed(){
   }
 }
 
-static void left_button_pressed() {
+static void getNameLeftButtonPressed() {
   Lcd& lcd = Lcd::getInstance();
   CursorPoint--;
   if(CursorPoint<0)CursorPoint=0;
@@ -187,7 +219,7 @@ static void confirm() {
   lcd.noBlink();
 }
 
-static void right_button_pressed() {
+static void getNameRightButtonPressed() {
   Lcd& lcd = Lcd::getInstance();
   CursorPoint++;
   if(CursorPoint>=4) {
@@ -199,4 +231,30 @@ static void right_button_pressed() {
   } else {
     lcd.setCursor(okX + 4,initialsY);
   }
+}
+
+static void showHighscoreDownButtonPressed() {
+  _optionsMenu.moveSelectionDown();
+}
+
+static void showHighscoreUpButtonPressed() {
+  _optionsMenu.moveSelectionUp();
+}
+
+static void showHighscoreLeftButtonPressed() {
+  changeState(MENU);
+}
+
+static bool jogadorTemMaisPontos(Jogador j1, Jogador j2) {
+  if (j1.pontos > j2.pontos) {
+    return true;
+  }
+  return false;
+}
+
+static bool jogadorTemMenosPontos(Jogador j1, Jogador j2) {
+  if (j1.pontos < j2.pontos) {
+    return true;
+  }
+  return false;
 }

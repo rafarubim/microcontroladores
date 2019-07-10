@@ -2,33 +2,31 @@
 
 #define qtdJogadores 8
 
-struct jogador{
+struct Jogador{
   char nome[4];
   int pontos;
 };
 
-typedef struct jogador Jogador;
-
-struct highscore{
-  Jogador jogador[qtdJogadores];
+enum HighscoreTables {
+  SCREAM_JUMP_TABLE,
+  SHOOTING_STARS_TABLE,
+  MAZE_CRAWLER_TABLE
 };
-
-typedef struct highscore Highscore;
-
-typedef bool (*ComparacaoJogadores)(Jogador, Jogador);
 
 bool jogadorTemMaisPontos(Jogador j1, Jogador j2);
 
 bool jogadorTemMenosPontos(Jogador j1, Jogador j2);
 
-void print_score(int endereco);
+bool isPlayerRecordist(HighscoreTables game, Jogador jogador);
 
-bool isPlayerRecordist(int endereco, Jogador jogador, ComparacaoJogadores compararJogadores);
+bool addPlayerRecord(HighscoreTables game, Jogador jogador);
 
-bool addPlayerRecord(int endereco, Jogador jogador, ComparacaoJogadores compararJogadores);
-
-void clear_score(int endereco);
+void clear_score(HighscoreTables game);
 
 void setupGetPlayerName(int pontos);
 
 void loopGetPlayerName();
+
+void setupShowHighscore(HighscoreTables game);
+
+void loopShowHighscore();
