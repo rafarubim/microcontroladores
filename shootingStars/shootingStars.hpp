@@ -2,6 +2,6 @@
 
 #include "Graphics.hpp"
 
-void setupGameStar();
+void shootingStarsSetup();
    
-void gameLoopStar();
+void shootingStarsLoop();
