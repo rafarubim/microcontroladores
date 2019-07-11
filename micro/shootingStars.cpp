@@ -5,27 +5,10 @@
 #include "Pos.h"
 #include "music.h"
 #include <GFButton.h>
-//#include "highscore.hpp"
+#include "highscore.hpp"
 
 #define WALL_AMOUNT 3
 
-static Note shootingstars[] = {{Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Dsharp5, 1500 / 2, 375 / 2}, {Dsharp5, 250 / 2, 250 / 2}, {E5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 500 / 2, 0}, {Gsharp4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2},
-  {Fsharp5, 1500 / 2, 375 / 2}, {Fsharp5, 250 / 2, 250 / 2}, {Gsharp5, 500 / 2, 375 / 2}, {Fsharp5, 500 / 2, 0}, {Dsharp5, 500 / 2, 0}, {B4, 250 / 2, 50 / 2}
-};
 
 static const char* Menu[] = {
   "   ______ ______  ____  ___________  _______  _____________   ___  ____",
@@ -58,7 +41,7 @@ static byte WALL[8] = {
   0b11111
 };
 //static byte WALL = 0xff;
-static unsigned long score;
+static int score;
 static unsigned long initial;
 static int STARSize = 6;
 static int maxY = 34;
@@ -71,11 +54,6 @@ static double positionY = 17;
 static double positionX = 0;
 static unsigned long time_flag = 0;
 static double moment;
-
-static bool outputTone = false;
-static int currentNote = -1;
-static const int toneGround = 6;
-static const int tonePin = A7;
 
 struct Wall {
   int x;
@@ -185,7 +163,12 @@ unsigned long shootingStarsLoop()
     if ( checkCollision(walls) ) {
       lcd.clear();
       score = ((millis() - initial) / 1000);
-      //        Jogador jogador = {"", (float)score};
+      Jogador player;
+      player.pontos = score;
+      if (isPlayerRecordist(SHOOTING_STARS_TABLE, player)) {
+        setupGetPlayerName(player.pontos);
+        changeState(ADD_RECORD);
+      }
       velocityY = 0;
       positionX = 0;
       positionY = 17;
