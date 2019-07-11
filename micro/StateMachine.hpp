@@ -4,7 +4,9 @@ enum States {
   MENU,
   SCREAM_JUMP,
   SHOOTING_STARS,
-  MAZE_CRAWLER
+  MAZE_CRAWLER,
+  ADD_RECORD,
+  SHOW_RECORDS
 };
 
 void machineSetup();

@@ -19,11 +19,9 @@ bool jogadorTemMenosPontos(Jogador j1, Jogador j2);
 
 bool isPlayerRecordist(HighscoreTables game, Jogador jogador);
 
-bool addPlayerRecord(HighscoreTables game, Jogador jogador);
-
 void clear_score(HighscoreTables game);
 
-void setupGetPlayerName(int pontos);
+void setupGetPlayerName(HighscoreTables game, int pontos);
 
 void loopGetPlayerName();
 

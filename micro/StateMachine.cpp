@@ -3,11 +3,14 @@
 #include "ScreamJump.hpp"
 #include "mazeCrawler.hpp"
 #include "ShootingStars.hpp"
+#include "Highscore.hpp"
+#include "Lcd.hpp"
 
-static States currentState = MENU;
+static States currentState = SHOW_RECORDS;
 
 void machineSetup() {
   MainMenu::menuSetup();
+  setupShowHighscore(MAZE_CRAWLER_TABLE);
 }
 
 void machineLoop() {
@@ -33,15 +36,18 @@ void machineLoop() {
   }
 }
 
-void changeState(States state) { 
+void changeState(States state) {
+  setupState(state);
   currentState = state; 
 } 
 
-void setupState(States state) { 
+void setupState(States state) {
+  Lcd& lcd = Lcd::getInstance();
+  lcd.clear();
   if (state == SCREAM_JUMP) 
       setupGame(); 
   else if (state == SHOOTING_STARS) 
     shootingStarsSetup(); 
   else if (state == MAZE_CRAWLER) 
-    setupMazeCrawler(); 
+    setupMazeCrawler();
 } 
