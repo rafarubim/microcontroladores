@@ -6,11 +6,10 @@
 #include "Highscore.hpp"
 #include "Lcd.hpp"
 
-static States currentState = SHOW_RECORDS;
+static States currentState = MENU;
 
 void machineSetup() {
   MainMenu::menuSetup();
-  setupShowHighscore(MAZE_CRAWLER_TABLE);
 }
 
 void machineLoop() {

@@ -5,6 +5,8 @@
 #include "StateMachine.hpp"
 #include "Highscore.hpp"
 
+#define null 0
+
 // number of mazes player has to go through
 #define NUM_MAZES 4
 // total width and height of maze
@@ -272,10 +274,10 @@ static void right_cb() {
       }
       
       // resetting buttons
-      upBtn.setReleaseHandler();
-      downBtn.setReleaseHandler();
-      rightBtn.setReleaseHandler();
-      leftBtn.setReleaseHandler();
+      upBtn.setReleaseHandler(null);
+      downBtn.setReleaseHandler(null);
+      rightBtn.setReleaseHandler(null);
+      leftBtn.setReleaseHandler(null);
       return;
     }
 

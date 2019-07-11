@@ -4,6 +4,8 @@
 #include <arduino.h>
 #include "Pos.h"
 #include<GFButton.h>
+#include "Highscore.hpp"
+#include "StateMachine.hpp"
 
 #define INITIAL_PLATFORMS 3
 #define PLATFORM_AMOUNT 17
@@ -167,58 +169,57 @@ void setupGame ()
    
 void gameLoop()  
 {
-  downBtn.process();
+  if (!playing) {
+    downBtn.process();
+    return;
+  }
 
   Lcd lcd = Lcd::getInstance();
   Graphics graphics = Graphics::getInstance();
+  if (checkCollision()) {
+    delay(1000);
+    lcd.clear();
+    score = (millis()-initialTime)/1000;
 
-  if (playing){
-    if (checkCollision()) {
-      delay(1000);
-      lcd.clear();
-      score = (millis()-initialTime)/1000;
-
-      Jogador player;
-      player.pontos = score;
-      if (isPlayerRecordist(SCREAM_JUMP_TABLE, player)) {
-        setupGetPlayerName(SCREAM_JUMP_TABLE, score);
-        changeState(ADD_RECORD);
-      }
-    }
-    
-    for ( int i = 0 ; i <num_Measure; i ++)  
-    {  
-      Sound_signal = analogRead (pinSignal);
-      sum = sum + Sound_signal;
-    }
-    level = sum / num_Measure; // Calculate the average value
-    Serial.println(level);
-    sum = 0 ; // Reset the sum of the measurement values
-    
-    if (level > SOUND_THRESHOLD) {
-      OnSoundLevelHigh(level);
-    }
-    else {
-      OnSoundLevelLow();
-    }
-    
-    moment = (millis() - time_flag)/1000.;
-    Update(moment);
-    time_flag = millis();
-  
-    for (int i=0; i<INITIAL_PLATFORMS; i++) {
-      lcd.stamp(PLATFORM, i, 3);
-    }
-    
-    if (positionX >= 119) {
-    }
-   
-    graphics.draw(PINGU, Pos(positionX, floor(positionY)));
-    for (int i = 0; i < PLATFORM_AMOUNT; i++) {
-      drawPlatform();
+    Jogador player;
+    player.pontos = score;
+    if (isPlayerRecordist(SCREAM_JUMP_TABLE, player)) {
+      setupGetPlayerName(SCREAM_JUMP_TABLE, score);
+      changeState(ADD_RECORD);
     }
   }
+  
+  for ( int i = 0 ; i <num_Measure; i ++)  
+  {  
+    Sound_signal = analogRead (pinSignal);
+    sum = sum + Sound_signal;
+  }
+  level = sum / num_Measure; // Calculate the average value
+  Serial.println(level);
+  sum = 0 ; // Reset the sum of the measurement values
+  
+  if (level > SOUND_THRESHOLD) {
+    OnSoundLevelHigh(level);
+  }
+  else {
+    OnSoundLevelLow();
+  }
+  
+  moment = (millis() - time_flag)/1000.;
+  Update(moment);
+  time_flag = millis();
 
+  for (int i=0; i<INITIAL_PLATFORMS; i++) {
+    lcd.stamp(PLATFORM, i, 3);
+  }
+  
+  if (positionX >= 119) {
+  }
+ 
+  graphics.draw(PINGU, Pos(positionX, floor(positionY)));
+  for (int i = 0; i < PLATFORM_AMOUNT; i++) {
+    drawPlatform();
+  }
   
   graphics.processGraphics();
 }

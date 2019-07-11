@@ -39,8 +39,6 @@ static bool jogadorTemMaisPontos(Jogador j1, Jogador j2);
 
 static bool jogadorTemMenosPontos(Jogador j1, Jogador j2);
 
-static void detachButtons();
-
 static char main_word[4] = "AAA";
 static int CursorPoint = 0;
 static int endereco = 0;
@@ -49,12 +47,11 @@ static const int initialsY = 1;
 static const int okX = 15;
 static Jogador jogadorToGetName;
 static OptionsMenu _optionsMenu = OptionsMenu();
-static HighscoreTables _currentGame;
 
 static GFButton UpButton = GFButton(A0, E_GFBUTTON_PULLUP);
 static GFButton LeftButton = GFButton(A1, E_GFBUTTON_PULLUP);
 static GFButton DownButton = GFButton(A2, E_GFBUTTON_PULLUP);
-static GFButton RightButton = GFButton(A3, E_GFBUTTON_PULLUP);
+static GFButton RightButton = GFButton(A4, E_GFBUTTON_PULLUP);
 
 static ComparacaoJogadores comparacoesTables[] = {
   jogadorTemMaisPontos, // SCREAM_JUMP
@@ -118,17 +115,16 @@ void clear_score(HighscoreTables game) {
   int endereco = enderecosTables[game];
   Highscore highscore = get_score(endereco);
   for (int i = 0; i< qtdJogadores ; i++) {
-    highscore.jogador[i] = {{'\0','\0','\0','\0'},0};
+    highscore.jogador[i] = {{'\0'},0};
   }
   save_score(endereco, highscore);
 }
 
-void setupGetPlayerName(HighscoreTables game, int pontos) {
-  _currentGame = game;
-  UpButton.setReleaseHandler(getNameUpButtonPressed);
-  DownButton.setReleaseHandler(getNameDownButtonPressed);
-  RightButton.setReleaseHandler(getNameRightButtonPressed);
-  LeftButton.setReleaseHandler(getNameLeftButtonPressed);
+void setupGetPlayerName(int pontos) {
+  UpButton.setPressHandler(getNameUpButtonPressed);
+  DownButton.setPressHandler(getNameDownButtonPressed);
+  RightButton.setPressHandler(getNameRightButtonPressed);
+  LeftButton.setPressHandler(getNameLeftButtonPressed);
 
   jogadorToGetName.pontos = pontos;
   CursorPoint = 0;
@@ -161,29 +157,18 @@ void setupShowHighscore(HighscoreTables game) {
   _optionsMenu.addOption("Highscore de");
   _optionsMenu.addOption(nomesTables[game]);
   String scores[qtdJogadores];
-  int playersAmount = 0;
   for (int i = 0; i < qtdJogadores; i++) {
-    if (highscore.jogador[i].nome[0] != '\0') {
-      playersAmount++;
-      scores[i] = String(i+1) + "o: " + String(highscore.jogador[i].nome) + " - " + String(highscore.jogador[i].pontos);
-    }
-    else {
-      break;
-    }
+    scores[i] = String(i+1) + "o: " + String(highscore.jogador[i].nome) + " - " + String(highscore.jogador[i].pontos);
   }
-  Serial.println(playersAmount);
-  _optionsMenu.createSelectionList(scores, playersAmount);
+  _optionsMenu.createSelectionList(scores);
 
-  UpButton.setReleaseHandler(showHighscoreUpButtonPressed);
-  DownButton.setReleaseHandler(showHighscoreDownButtonPressed);
-  LeftButton.setReleaseHandler(showHighscoreLeftButtonPressed);
+  UpButton.setPressHandler(showHighscoreUpButtonPressed);
+  DownButton.setPressHandler(showHighscoreDownButtonPressed);
+  LeftButton.setPressHandler(showHighscoreLeftButtonPressed);
 }
 
 void loopShowHighscore() {
   _optionsMenu.drawOptions();
-  UpButton.process();
-  DownButton.process();
-  LeftButton.process();
 }
 
 static void save_score(int endereco, Highscore highscore) {
@@ -196,7 +181,7 @@ static Highscore get_score(int endereco) {
    return highscore;
 }
 
-static void getNameUpButtonPressed() {  
+static void getNameDownButtonPressed() {  
   Lcd& lcd = Lcd::getInstance();
   if (CursorPoint < 3) {
     main_word[CursorPoint]++;
@@ -207,7 +192,7 @@ static void getNameUpButtonPressed() {
   }
 }
 
-static void getNameDownButtonPressed() {
+static void getNameUpButtonPressed() {
   Lcd& lcd = Lcd::getInstance();
   if (CursorPoint < 3) {
     main_word[CursorPoint]--;
@@ -232,11 +217,6 @@ static void confirm() {
   jogadorToGetName.nome[2] = main_word[2];
   jogadorToGetName.nome[3] = main_word[3];
   lcd.noBlink();
-
-  addPlayerRecord(_currentGame, jogadorToGetName);
-  detachButtons();
-  setupShowHighscore(_currentGame);
-  changeState(SHOW_RECORDS);
 }
 
 static void getNameRightButtonPressed() {
@@ -277,11 +257,4 @@ static bool jogadorTemMenosPontos(Jogador j1, Jogador j2) {
     return true;
   }
   return false;
-}
-
-static void detachButtons() {
-  UpButton.setReleaseHandler(null);
-  DownButton.setReleaseHandler(null);
-  RightButton.setReleaseHandler(null);
-  LeftButton.setReleaseHandler(null);
 }
