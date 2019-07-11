@@ -2,6 +2,8 @@
 #include "music.h"
 #include "Lcd.hpp"
 #include<GFButton.h>
+#include "StateMachine.hpp"
+#include "Highscore.hpp"
 
 // number of mazes player has to go through
 #define NUM_MAZES 4
@@ -257,14 +259,23 @@ static void right_cb() {
       // add dot to new position
       stamp(byte(4), LEN, HGT-1);
 
-      score = 1.0e7/(millis()-initialTimeFlag);
+      score = (millis()-initialTimeFlag)/1000;
 
       delay(1000); // quick delay for player to see they've completed the maze
       lcd.clear();
-//      lcd.setCursor(0, 0);
-//      lcd.write("Score: ");
-//      lcd.print(score, 2);
-      // TODO (camila): highscore window
+
+      Jogador player;
+      player.pontos = score;
+      if (isPlayerRecordist(MAZE_CRAWLER_TABLE, player)) {
+        setupGetPlayerName(MAZE_CRAWLER_TABLE, score);
+        changeState(ADD_RECORD);
+      }
+      
+      // resetting buttons
+      upBtn.setReleaseHandler();
+      downBtn.setReleaseHandler();
+      rightBtn.setReleaseHandler();
+      leftBtn.setReleaseHandler();
       return;
     }
 

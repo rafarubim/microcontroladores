@@ -3,12 +3,20 @@
 #include "Graphics.hpp"
 #include <arduino.h>
 #include "Pos.h"
+#include<GFButton.h>
 
 #define INITIAL_PLATFORMS 3
 #define PLATFORM_AMOUNT 17
 #define SOUND_THRESHOLD 120
 
 static int platformArray[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+static char* gameNameAnimation[] = {
+  "   ____________  _______   __  ___     ____  ____  ______ ",
+  "  / __/ ___/ _ |/ __/ _ | /  |/  / __ / / / / /  |/  / _ |",
+  " _| |/ /__/ , _/ _// __ |/ /|_/ / / // / /_/ / /|_/ / ___/",
+  "/___/|___/_/|_/___/_/ |_/_/  /_/  |___/|____/_/  /_/_/    "
+};
 
 static byte PINGU[8] = {
   0b00000,
@@ -22,9 +30,11 @@ static byte PINGU[8] = {
 };
 
 static char PLATFORM = (char)0xff;
+static int playing = 0;
 
 static int num_Measure = 10 ; // Set the number of measurements   
 static int pinSignal = A4; // pin connected to pin O module sound sensor   
+static GFButton downBtn(A2, E_GFBUTTON_PULLUP);
 static long Sound_signal;    // Store the value read Sound Sensor   
 static long sum = 0 ; // Store the total value of n measurements   
 static long level = 0 ; // Store the average value
@@ -116,62 +126,99 @@ static void OnSoundLevelLow()
   velocityY = 22;
 }
 
-void setupGame ()
-{
-  randomSeed(analogRead(0));
-  
-  pinMode(pinSignal, INPUT);
-  randomizePlatforms();
-  initialTime = millis(); // TODO (so qnd comecar)
-}
-   
-void gameLoop()  
-{
-  Lcd lcd = Lcd::getInstance();
-  Graphics graphics = Graphics::getInstance();
-
-  if (checkCollision()) {
-    lcd.clear();
+static void startGame(){
+  Lcd& lcd = Lcd::getInstance();
+  lcd.clear();
+  for ( int scroll = 0; scroll < 19; scroll++) {
+    for( int i = 0; i < 4; i++ ) {
+      for( int j = scroll; j < (20+scroll); j++) {
+        lcd.stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
+      }
+    }
     delay(200);
-    positionX = 0;
-    randomizePlatforms();
-    drawPlatform();
   }
-  
-  for ( int i = 0 ; i <num_Measure; i ++)  
-  {  
-    Sound_signal = analogRead (pinSignal);
-    sum = sum + Sound_signal;
-  }
-  level = sum / num_Measure; // Calculate the average value
-  Serial.println(level);
-  sum = 0 ; // Reset the sum of the measurement values
-  
-  if (level > SOUND_THRESHOLD) {
-    OnSoundLevelHigh(level);
-  }
-  else {
-    OnSoundLevelLow();
-  }
-  
-  moment = (millis() - time_flag)/1000.;
-  Update(moment);
-  time_flag = millis();
+  lcd.clear();
+  lcd.setCursor(1,1);
+  lcd.print("Pressione o botao");
+  lcd.setCursor(4,2);
+  lcd.print("para jogar");
+}
 
-  for (int i=0; i<INITIAL_PLATFORMS; i++) {
-    lcd.stamp(PLATFORM, i, 3);
-  }
-  
-  if (positionX >= 119) {
+static void btn_cb() {
+  Graphics& graphics = Graphics::getInstance();
+  if (!playing) {
+    playing = !playing;
+    initialTime = millis(); // to calculate score
     graphics.flushScreen();
     randomizePlatforms();
     drawPlatform();
     positionX = 0;
   }
- 
-  graphics.draw(PINGU, Pos(positionX, floor(positionY)));
-  for (int i = 0; i < PLATFORM_AMOUNT; i++) {
-    drawPlatform();
+}
+
+void setupGame ()
+{
+  randomSeed(analogRead(0));
+  downBtn.setReleaseHandler(btn_cb);
+  pinMode(pinSignal, INPUT);
+  randomizePlatforms();
+  startGame();
+}
+   
+void gameLoop()  
+{
+  downBtn.process();
+
+  Lcd lcd = Lcd::getInstance();
+  Graphics graphics = Graphics::getInstance();
+
+  if (playing){
+    if (checkCollision()) {
+      delay(1000);
+      lcd.clear();
+      score = (millis()-initialTime)/1000;
+
+      Jogador player;
+      player.pontos = score;
+      if (isPlayerRecordist(SCREAM_JUMP_TABLE, player)) {
+        setupGetPlayerName(SCREAM_JUMP_TABLE, score);
+        changeState(ADD_RECORD);
+      }
+    }
+    
+    for ( int i = 0 ; i <num_Measure; i ++)  
+    {  
+      Sound_signal = analogRead (pinSignal);
+      sum = sum + Sound_signal;
+    }
+    level = sum / num_Measure; // Calculate the average value
+    Serial.println(level);
+    sum = 0 ; // Reset the sum of the measurement values
+    
+    if (level > SOUND_THRESHOLD) {
+      OnSoundLevelHigh(level);
+    }
+    else {
+      OnSoundLevelLow();
+    }
+    
+    moment = (millis() - time_flag)/1000.;
+    Update(moment);
+    time_flag = millis();
+  
+    for (int i=0; i<INITIAL_PLATFORMS; i++) {
+      lcd.stamp(PLATFORM, i, 3);
+    }
+    
+    if (positionX >= 119) {
+    }
+   
+    graphics.draw(PINGU, Pos(positionX, floor(positionY)));
+    for (int i = 0; i < PLATFORM_AMOUNT; i++) {
+      drawPlatform();
+    }
   }
+
+  
   graphics.processGraphics();
 }
