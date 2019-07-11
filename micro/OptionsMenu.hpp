@@ -18,14 +18,14 @@ public:
   void clearOptions();
   void addOption(String option);
   template <unsigned N>
-  void createSelectionList(String(&selectionArray)[N]) {
-    for (int i = 0; i < N; i++) {
+  void createSelectionList(String(&selectionArray)[N], int n = N) {
+    for (int i = 0; i < n; i++) {
       _selectionArray[i] = selectionArray[i];
     }
-    _selectionAmount = N;
+    _selectionAmount = n;
     _selectionArrayOptionInx = _optionsAmount;
     _currentSelection = 0;
-    _optionsAmount += N;
+    _optionsAmount += n;
     updateSelectionArray();
   }
   void moveSelectionUp();

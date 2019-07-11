@@ -12,7 +12,7 @@ void setup ()
   Serial.begin (9600);
   Lcd::configLcd(COLS, ROWS);
 
-  //Animation::opening();
+  Animation::opening();
   
   Graphics& graphics = Graphics::getInstance();
   graphics.setFps(20);

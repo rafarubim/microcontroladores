@@ -80,7 +80,7 @@ void Lcd::pushCursorPos() {
 }
 
 void Lcd::popCursorPos() {
-  cursorPos = _cursorPosBackup;
+  setCursor(_cursorPosBackup.x, _cursorPosBackup.y);
 }
 
 void Lcd::stamp(char c, int x, int y) {

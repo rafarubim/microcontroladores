@@ -20,7 +20,6 @@ void MainMenu::pressedDown() {
 void MainMenu::pressedRight() {
   int inx = _optionsMenu.getSelectionInx();
   // state 0 is menu, after that, as list displays
-  setupState(inx+1);
   changeState(inx+1);
 }
 
