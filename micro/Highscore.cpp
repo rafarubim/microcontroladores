@@ -140,7 +140,7 @@ void setupGetPlayerName(HighscoreTables game, int pontos) {
   lcd.clear();
   lcd.home();
   lcd.print("Quebrou o recorde!");
-  lcd.setCursor(0, initialsY);
+  lcd.setCursor(0, 1);
   lcd.print("Iniciais do seu nome");
   lcd.setCursor(0, initialsY);
   lcd.print(main_word);

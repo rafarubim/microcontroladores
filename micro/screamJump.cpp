@@ -3,7 +3,6 @@
 #include "Graphics.hpp"
 #include <arduino.h>
 #include "Pos.h"
-#include<GFButton.h>
 #include "Highscore.hpp"
 #include "StateMachine.hpp"
 
@@ -12,13 +11,6 @@
 #define SOUND_THRESHOLD 120
 
 static int platformArray[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-static char* gameNameAnimation[] = {
-  "   ____________  _______   __  ___     ____  ____  ______ ",
-  "  / __/ ___/ _ |/ __/ _ | /  |/  / __ / / / / /  |/  / _ |",
-  " _| |/ /__/ , _/ _// __ |/ /|_/ / / // / /_/ / /|_/ / ___/",
-  "/___/|___/_/|_/___/_/ |_/_/  /_/  |___/|____/_/  /_/_/    "
-};
 
 static byte PINGU[8] = {
   0b00000,
@@ -32,11 +24,9 @@ static byte PINGU[8] = {
 };
 
 static char PLATFORM = (char)0xff;
-//static bool playing = false;
 
 static int num_Measure = 10 ; // Set the number of measurements   
 static int pinSignal = A4; // pin connected to pin O module sound sensor   
-//static GFButton downBtn(A2, E_GFBUTTON_PULLUP);
 static long Sound_signal;    // Store the value read Sound Sensor   
 static long sum = 0 ; // Store the total value of n measurements   
 static long level = 0 ; // Store the average value
@@ -117,60 +107,25 @@ static void OnSoundLevelLow()
   velocityY = 22;
 }
 
-//static void startGame(){
-//  Lcd& lcd = Lcd::getInstance();
-//  lcd.clear();
-//  for ( int scroll = 0; scroll < 19; scroll++) {
-//    for( int i = 0; i < 4; i++ ) {
-//      for( int j = scroll; j < (20+scroll); j++) {
-//        lcd.stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
-//      }
-//    }
-//    delay(200);
-//  }
-//  lcd.clear();
-//  lcd.setCursor(1,1);
-//  lcd.print("Pressione o botao");
-//  lcd.setCursor(4,2);
-//  lcd.print("para jogar");
-//}
-
-//static void btn_cb() {
-//  Lcd& lcd = Lcd::getInstance();
-//  if (!playing) {
-//    playing = true;
-//    initialTime = millis(); // to calculate score
-//    lcd.clear();
-//    randomizePlatforms();
-//    drawPlatform();
-//    positionX = 0;
-//  }
-//}
-
 void setupGame ()
 {
   randomSeed(analogRead(0));
 //  downBtn.setReleaseHandler(btn_cb);
   pinMode(pinSignal, INPUT);
   randomizePlatforms();
-  //startGame();
-  randomizePlatforms();
-  drawPlatform();
-  positionX = 0;
+  initialTime = millis();
+//  randomizePlatforms();
+//  drawPlatform();
+//  positionX = 0;
 }
    
 void gameLoop()  
 {
-//  if (!playing) {
-//    downBtn.process();
-//    return;
-//  }
 
   Lcd& lcd = Lcd::getInstance();
   Graphics& graphics = Graphics::getInstance();
 
   if (checkCollision()) {
-    delay(1000);
     lcd.clear();
     score = (millis()-initialTime)/1000;
 
@@ -210,6 +165,10 @@ void gameLoop()
   }
   
   if (positionX >= 119) {
+    lcd.clear();
+    randomizePlatforms();
+    drawPlatform();
+    positionX = 0;
   }
   graphics.draw(PINGU, Pos(positionX, floor(positionY)));
   for (int i = 0; i < PLATFORM_AMOUNT; i++) {
