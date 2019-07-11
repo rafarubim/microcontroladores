@@ -216,7 +216,6 @@ static void draw_maze() {
 }
 
 static void up_cb() {
-  Serial.println("up");
   if (!playing) return;
   if (currentY == 0 || maze[currentMaze][currentY-1][currentX]%4==1 || maze[currentMaze][currentY-1][currentX]%4==3) {
     return;
@@ -252,7 +251,6 @@ static void down_cb() {
 
 static void right_cb() {
   Lcd& lcd = Lcd::getInstance();
-  Serial.println("right");
   if (!playing) return;
   if (currentX==LEN-1 && currentY==HGT-1) { // victory
     if (currentMazeIndex == NUM_MAZES - 1) { // was last maze
@@ -269,8 +267,13 @@ static void right_cb() {
       Jogador player;
       player.pontos = score;
       if (isPlayerRecordist(MAZE_CRAWLER_TABLE, player)) {
-        setupGetPlayerName(MAZE_CRAWLER_TABLE, score);
         changeState(ADD_RECORD);
+        setupGetPlayerName(MAZE_CRAWLER_TABLE, score);
+        return;
+      }
+      else {
+        changeState(MENU);
+        return;
       }
       
       // resetting buttons
@@ -304,7 +307,6 @@ static void right_cb() {
 }
 
 static void left_cb() {
-  Serial.println("left");
   if (!playing) return;
   if (currentX == 0 || maze[currentMaze][currentY][currentX-1]%4==2 || maze[currentMaze][currentY][currentX-1]%4==3) {
     return;
@@ -368,5 +370,5 @@ void mazeCrawlerLoop() {
   
   upBtn.process(); downBtn.process(); rightBtn.process(); leftBtn.process();
 
-  previousMillis = play(labyrinth, (sizeof(labyrinth)/sizeof(Note)) - 1 , previousMillis, currentNote, outputTone, tonePin);
+  //previousMillis = play(labyrinth, (sizeof(labyrinth)/sizeof(Note)) - 1 , previousMillis, currentNote, outputTone, tonePin);
 }

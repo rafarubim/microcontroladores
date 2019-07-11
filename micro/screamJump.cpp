@@ -32,11 +32,11 @@ static byte PINGU[8] = {
 };
 
 static char PLATFORM = (char)0xff;
-static int playing = 0;
+//static bool playing = false;
 
 static int num_Measure = 10 ; // Set the number of measurements   
 static int pinSignal = A4; // pin connected to pin O module sound sensor   
-static GFButton downBtn(A2, E_GFBUTTON_PULLUP);
+//static GFButton downBtn(A2, E_GFBUTTON_PULLUP);
 static long Sound_signal;    // Store the value read Sound Sensor   
 static long sum = 0 ; // Store the total value of n measurements   
 static long level = 0 ; // Store the average value
@@ -68,21 +68,10 @@ static double positionX = 0;
 //  0b00000
 //};
 
-//struct Platform {
-//  double x;
-//  Platform(int x): x(x) {}
-//  Platform(): Platform(0) {}
-//};
-
-//Platform platforms[PLATFORM_AMOUNT] = {Platform(5), Platform(7), Platform(9)};
-
 static int checkCollision() {
   if (positionY >= maxY - 2) {
     for (int i=0; i<20; i++) {
-  //    Serial.println(int(positionX/6));
       if (int(positionX/6) - INITIAL_PLATFORMS > -1) {
-        Serial.println("FOR");
-  //      Serial.println(int(positionX/6) - 3);
         if (!platformArray[int(positionX/6) - INITIAL_PLATFORMS]) return 1;
       }
     }
@@ -92,7 +81,7 @@ static int checkCollision() {
 
 
 void drawPlatform() {
-  Lcd lcd = Lcd::getInstance();
+  Lcd& lcd = Lcd::getInstance();
 
   for (int i=0; i<PLATFORM_AMOUNT; i++) {
     if (platformArray[i]) {
@@ -128,54 +117,58 @@ static void OnSoundLevelLow()
   velocityY = 22;
 }
 
-static void startGame(){
-  Lcd& lcd = Lcd::getInstance();
-  lcd.clear();
-  for ( int scroll = 0; scroll < 19; scroll++) {
-    for( int i = 0; i < 4; i++ ) {
-      for( int j = scroll; j < (20+scroll); j++) {
-        lcd.stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
-      }
-    }
-    delay(200);
-  }
-  lcd.clear();
-  lcd.setCursor(1,1);
-  lcd.print("Pressione o botao");
-  lcd.setCursor(4,2);
-  lcd.print("para jogar");
-}
+//static void startGame(){
+//  Lcd& lcd = Lcd::getInstance();
+//  lcd.clear();
+//  for ( int scroll = 0; scroll < 19; scroll++) {
+//    for( int i = 0; i < 4; i++ ) {
+//      for( int j = scroll; j < (20+scroll); j++) {
+//        lcd.stamp(gameNameAnimation[i][j+scroll], j-scroll, i);
+//      }
+//    }
+//    delay(200);
+//  }
+//  lcd.clear();
+//  lcd.setCursor(1,1);
+//  lcd.print("Pressione o botao");
+//  lcd.setCursor(4,2);
+//  lcd.print("para jogar");
+//}
 
-static void btn_cb() {
-  Graphics& graphics = Graphics::getInstance();
-  if (!playing) {
-    playing = !playing;
-    initialTime = millis(); // to calculate score
-    graphics.flushScreen();
-    randomizePlatforms();
-    drawPlatform();
-    positionX = 0;
-  }
-}
+//static void btn_cb() {
+//  Lcd& lcd = Lcd::getInstance();
+//  if (!playing) {
+//    playing = true;
+//    initialTime = millis(); // to calculate score
+//    lcd.clear();
+//    randomizePlatforms();
+//    drawPlatform();
+//    positionX = 0;
+//  }
+//}
 
 void setupGame ()
 {
   randomSeed(analogRead(0));
-  downBtn.setReleaseHandler(btn_cb);
+//  downBtn.setReleaseHandler(btn_cb);
   pinMode(pinSignal, INPUT);
   randomizePlatforms();
-  startGame();
+  //startGame();
+  randomizePlatforms();
+  drawPlatform();
+  positionX = 0;
 }
    
 void gameLoop()  
 {
-  if (!playing) {
-    downBtn.process();
-    return;
-  }
+//  if (!playing) {
+//    downBtn.process();
+//    return;
+//  }
 
-  Lcd lcd = Lcd::getInstance();
-  Graphics graphics = Graphics::getInstance();
+  Lcd& lcd = Lcd::getInstance();
+  Graphics& graphics = Graphics::getInstance();
+
   if (checkCollision()) {
     delay(1000);
     lcd.clear();
@@ -184,8 +177,12 @@ void gameLoop()
     Jogador player;
     player.pontos = score;
     if (isPlayerRecordist(SCREAM_JUMP_TABLE, player)) {
-      setupGetPlayerName(SCREAM_JUMP_TABLE, score);
       changeState(ADD_RECORD);
+      setupGetPlayerName(SCREAM_JUMP_TABLE, score);
+      return;
+    } else {
+      changeState(MENU);
+      return;
     }
   }
   
@@ -195,7 +192,6 @@ void gameLoop()
     sum = sum + Sound_signal;
   }
   level = sum / num_Measure; // Calculate the average value
-  Serial.println(level);
   sum = 0 ; // Reset the sum of the measurement values
   
   if (level > SOUND_THRESHOLD) {
@@ -215,7 +211,6 @@ void gameLoop()
   
   if (positionX >= 119) {
   }
- 
   graphics.draw(PINGU, Pos(positionX, floor(positionY)));
   for (int i = 0; i < PLATFORM_AMOUNT; i++) {
     drawPlatform();

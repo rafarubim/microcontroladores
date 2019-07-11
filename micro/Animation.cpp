@@ -17,7 +17,7 @@ void Animation::opening() {
   lcd.setCursor(0, ROWS-1);
   int i = 0;
   int dir = 1;
-  const int animationDelay = 90;
+  const int animationDelay = 45;
   const int animationWidth = 6;
   for (int j = 0; j < COLS+animationWidth; j++) {
     lcd.setCursor(j, i);

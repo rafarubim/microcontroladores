@@ -5,7 +5,8 @@
 #include "Pos.h"
 #include "music.h"
 #include <GFButton.h>
-//#include "highscore.hpp"
+#include "Highscore.hpp"
+#include "StateMachine.hpp"
 
 #define WALL_AMOUNT 3
 
@@ -108,7 +109,6 @@ void startGame() {
   for (;;) {
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
-      Serial.println("btn");
       initial = millis();
       playing = !playing;
       return;
@@ -190,6 +190,16 @@ unsigned long shootingStarsLoop()
       positionX = 0;
       positionY = 17;
       playing = !playing;
+
+      Jogador jogador;
+      jogador.pontos = score;
+      if (isPlayerRecordist(SHOOTING_STARS_TABLE, jogador)) {
+        changeState(ADD_RECORD);
+        setupGetPlayerName(SHOOTING_STARS_TABLE, score);
+        return;
+      } else {
+        changeState(MENU);
+      }
       //        return jogador;
     }
     moment = (millis() - time_flag) / 1000.;

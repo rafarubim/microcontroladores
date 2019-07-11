@@ -45,7 +45,7 @@ static char main_word[4] = "AAA";
 static int CursorPoint = 0;
 static int endereco = 0;
 static int flag_end = 0;
-static const int initialsY = 1;
+static const int initialsY = 2;
 static const int okX = 15;
 static Jogador jogadorToGetName;
 static OptionsMenu _optionsMenu = OptionsMenu();
@@ -139,6 +139,8 @@ void setupGetPlayerName(HighscoreTables game, int pontos) {
   Lcd& lcd = Lcd::getInstance();
   lcd.clear();
   lcd.home();
+  lcd.print("Quebrou o recorde!");
+  lcd.setCursor(0, initialsY);
   lcd.print("Iniciais do seu nome");
   lcd.setCursor(0, initialsY);
   lcd.print(main_word);
@@ -171,7 +173,6 @@ void setupShowHighscore(HighscoreTables game) {
       break;
     }
   }
-  Serial.println(playersAmount);
   _optionsMenu.createSelectionList(scores, playersAmount);
 
   UpButton.setReleaseHandler(showHighscoreUpButtonPressed);

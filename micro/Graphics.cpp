@@ -65,9 +65,7 @@ void Graphics::draw(const byte (&drawing)[8], Pos pos) {
 
 void Graphics::stamp(char c, const byte (&representation)[8], Pos pos) {
   BufferedStamp bufferedStamp = BufferedStamp(c, representation, pos);
-  Serial.println("Before: "+String(_stampsAmount));
   pushElem(_stampsBuffer, _stampsAmount, bufferedStamp);
-  Serial.println("After: "+String(_stampsAmount));
 }
 
 void Graphics::flushScreen() {
